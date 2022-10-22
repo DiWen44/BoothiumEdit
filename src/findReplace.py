@@ -1,14 +1,15 @@
 from PyQt6.QtWidgets import QDialog, QLineEdit, QPushButton, QGridLayout, QMessageBox, QStyle
+from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QBrush
+from PyQt6.QtCore import Qt
 
 
 """ 
-Top-level function that creates popup and provides a conduit via which to access the other functions in this module.
+Top-level function that creates popup and provides a conduit via which the other functions in this module can be accessed.
 
 PARAMETERS:
-    text - the text being examined.
-    editor - the QTextEdit object for the code editor (So we can highlight found text).
+    Document - the QTextDocument currently active in the code editor.
 """
-def find(text, editor):
+def find(document):
 
     popup = QDialog()
     popup.setFixedSize(300, 100)
@@ -25,8 +26,7 @@ def find(text, editor):
     findBox.setStyleSheet("background-color: #151821; border-style: none;")
     findBox.setPlaceholderText("Find")
 
-    instances = [] # 3D array - Stores cartesian coordinates of all found text instances (to be modified by __getInstances())
-    findBox.returnPressed.connect(lambda: __getInstances(findBox.text(), text, instances))
+    findBox.returnPressed.connect(lambda: __getInstances(findBox.text(), document))
  
     nextInstance = QPushButton("Next", popup)
     nextInstance.setFixedSize(60, 20)
@@ -61,50 +61,55 @@ def find(text, editor):
 Gets instances of found text and highlights results
 
 PARAMETERS:
-    searchTerm - The text to search FOR.
-    inspectText - The text to search.
-    instances - The instances array
-    editor - the QTextEdit object for the code editor (So we can highlight text).
-
+    searchTerm - The text to search for.
+    document - the QTextDocument for the currently active document in the editor (So we can highlight text).
 """
-def __getInstances(searchTerm, inspectText, instances, editor):
+def __getInstances(searchTerm, document):
 
-    instances = [] # clear instances array in case instances from function's last execution are left in.
-    
-    position = [] # 2D array - Stores the position of 1 instance (cartesian coordinate of initial character & cartesian coordinate of final)
+    inspectText = document.toPlainText()
+    instances = [] # 2D array - Stores positions of the initial & final characters of all found text instances.
+    position = [] # Represents one instance of search term. Stores the position of initial & final character
     isDiff = False # Flag indicating whether text being examined is discrepant from searchTerm
 
-    inspectGrid = inspectText.split("\n") # Split text into 2D grid, ending at each newline. This allows us to get the coordinates of each character. 
-
-    for y in range(len(inspectGrid)):
-        for x in range(len(inspectGrid[y])):
-
-            if inspectGrid[y][x] == searchTerm[0]:
+    for i in range(len(inspectText)):
+            
+            if inspectText[i] == searchTerm[0]:
 
                 if len(searchTerm) > 1: # As we have established that the first characters are equal, if the searchTerm only has 1 character then we can conclude the scanning of this particular instance.
 
-                    for xOffset in range(1, len(searchTerm)): # Range starts at 1 as we have already established that the first characters are equal.
-                        try:
-                            if searchTerm[xOffset] != inspectGrid[y][x + xOffset]:
-                                isDiff = True
-                                break
-                        except IndexError: # This occurs when (x + xOffset) is "off of the end" of the line being examined i.e x + xOffset > len(inspectGrid[y]). In which case the searchTerm is not present here, and we move on.
+                    for offset in range(1, len(searchTerm)): # Range starts at 1 as we have already established that the first characters are equal.
+                        if searchTerm[offset] != inspectText[i + offset]:
                             isDiff = True
                             break
                 
                 else:
-                    xOffset = 0 # There is no xOffset if searchTerm only has 1 character.
+                    offset = 0 # There is no offset if searchTerm only has 1 character.
             
                 if not isDiff:
-                    position = [[x, y],[x + xOffset, y]]
+                    position = [i, i + offset]
                     instances.append(position)
 
                 isDiff = False
 
-    if instances == []:
+    if instances == []: # In case no instances are found
         msgBox = QMessageBox()
         msgBox.setWindowTitle("BoothiumEdit")
         msgBox.setText(f"Couldn't find '{searchTerm}'")
         msgBox.exec()
+
     else:
-        editor
+        for instance in instances:
+            cursor = QTextCursor(document)
+            cursor.setPosition(instance[0], QTextCursor.MoveMode.MoveAnchor) # Navigate cursor to instance
+            cursor.setPosition(instance[1] + 1, QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
+            cursor.insertText(f"<span style=\"background-color:#3ac1d6;\" >{searchTerm} </span>")
+            # Note that because the cursor positions itself between characters, the cursors final position must be offset + 1.
+
+            # Highlighting text
+            highlightFmt = QTextCharFormat()
+            highlightBrush = QBrush()
+            highlightBrush.setColor(Qt.GlobalColor.blue)
+            highlightFmt.setBackground(highlightBrush)
+            cursor.mergeCharFormat(highlightFmt)
+            
+        

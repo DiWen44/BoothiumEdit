@@ -1,9 +1,8 @@
-from PyQt6.QtWidgets import QApplication, QTextEdit, QMainWindow, QToolBar
-from PyQt6.QtGui import QAction, QFontMetrics, QKeySequence
+from PyQt6.QtWidgets import QApplication, QTextEdit, QMainWindow, QMenuBar, QMenu
+from PyQt6.QtGui import QAction, QFontMetrics, QKeySequence, QTextDocument
 
 import sys
 import platform
-import json
 
 import saving
 import findReplace
@@ -12,11 +11,13 @@ import findReplace
 app = QApplication([])
 
 
-class Window(QMainWindow):
+class MainWindow(QMainWindow):
+
 
     def __init__(self):
 
-        self.setWindowTitle("BoothiumEdit - " + fileNameNoPath)
+        super().__init__()
+
         self.setGeometry(100, 100, 1000, 1000)
         self.setMinimumSize(500, 500)
 
@@ -25,6 +26,7 @@ class Window(QMainWindow):
         try:
             fileName = sys.argv[1]
         except IndexError: # Handle user not providing a filename
+            # fileName = "C:\\Users\\devin\\OneDrive\\Documents\\BoothiumEdit\\test.txt"
             sys.exit("ERROR: No filename specified")
 
         try:
@@ -34,18 +36,18 @@ class Window(QMainWindow):
 
         fileText = file.read()
 
-
         # Get name of file without rest of path
         if platform.system() == "Windows": # Account for windows using "\" as path seperator rather than "/"
             pathSeperator = '\\' # Double backslash to escape the first backslash
         else:
             pathSeperator = '/'
-
+            
         lastPathSepIndex = fileName[::-1].index(pathSeperator) # Reverse file path to facilitate getting index of last path seperator 
         fileNameNoPath = ((fileName[::-1])[:lastPathSepIndex])[::-1] # Get characters of reverse path that precede last path seperator, then reverse this to get them finally in the right order
 
+        self.setWindowTitle("BoothiumEdit - " + fileNameNoPath)
 
-        # Setup for code editor
+
         editor = QTextEdit()
         editor.setStyleSheet("""color: white; 
                                 background-color: #484D5D; 
@@ -53,36 +55,38 @@ class Window(QMainWindow):
                                 font: courier new; 
                                 font-size: 10pt;""")
         editor.setTabStopDistance(QFontMetrics(editor.font()).horizontalAdvance(' ') * 4) # Changing tab size to 4 spaces 
+        document = QTextDocument(fileText)
+        editor.setDocument(document)
         self.setCentralWidget(editor)
-        editor.insertPlainText(fileText)
 
-
-        # Setup for toolbar
-        toolbar = QToolBar("Toolbar")
-        toolbar.setStyleSheet("""color: white; 
+        
+        menuBar = self.menuBar()
+        menuBar.setStyleSheet("""color: white; 
                                 background-color: #434343;
-                                font: Source Sans Pro;""")
+                                font: Source Sans Pro;
+                                """)
 
-        # Toolbar actions setup: Save, Save As & Find W/ keyboard shortcuts
-        save = QAction("Save")
-        save.triggered.connect(lambda: saving.save(fileName, editor.toPlainText()))
-        save.setShortcut(QKeySequence("Ctrl+s"))
-        toolbar.addAction(save)
+        saveAct = QAction("Save", self)
+        saveAct.triggered.connect(lambda: saving.save(fileName, self.centralWidget().toPlainText()))
+        saveAct.setShortcut(QKeySequence("Ctrl+s"))
                                                         
-        saveAs = QAction("Save As")
-        saveAs.triggered.connect(lambda: saving.saveAs(editor.toPlainText()))
-        saveAs.setShortcut(QKeySequence("Ctrl+Shift+s"))
-        toolbar.addAction(saveAs)
+        saveAsAct = QAction("Save As", self)
+        saveAsAct.triggered.connect(lambda: saving.saveAs(self.centralWidget().toPlainText()))
+        saveAsAct.setShortcut(QKeySequence("Ctrl+Shift+s"))
+        
+        findAct = QAction("Find", self)
+        findAct.triggered.connect(lambda: findReplace.find(self.centralWidget().document()))
+        findAct.setShortcut(QKeySequence("Ctrl+f"))
 
-        find = QAction("Find")
-        find.triggered.connect(lambda: findReplace.find(editor.toPlainText(), self.centralWidget()))
-        find.setShortcut(QKeySequence("Ctrl+f"))
-        toolbar.addAction(find)
+        fileMenu = menuBar.addMenu("&File")
+        fileMenu.addAction(saveAct)
+        fileMenu.addAction(saveAsAct)
+        
+        editMenu = menuBar.addMenu("&Edit")
+        editMenu.addAction(findAct)
 
-        self.addToolBar(toolbar)
 
-
-window = Window()
+window = MainWindow()
 window.show()
 
 sys.exit(app.exec())
