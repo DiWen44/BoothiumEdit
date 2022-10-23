@@ -1,6 +1,5 @@
-from PyQt6.QtWidgets import QDialog, QLineEdit, QPushButton, QGridLayout, QMessageBox, QStyle
-from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QBrush
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QDialog, QLineEdit, QPushButton, QGridLayout, QMessageBox
+from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 
 
 """ 
@@ -66,9 +65,16 @@ PARAMETERS:
 """
 def __getInstances(searchTerm, document):
 
+    # Exit function if no text was entered
+    if searchTerm == "":
+        return
+
+    __unhighlight(document) # Remove previous highlights from the document
+
+
     inspectText = document.toPlainText()
-    instances = [] # 2D array - Stores positions of the initial & final characters of all found text instances.
     position = [] # Represents one instance of search term. Stores the position of initial & final character
+    instances = [] # 2D array - Stores positions of the initial & final characters of all found text instances.
     isDiff = False # Flag indicating whether text being examined is discrepant from searchTerm
 
     for i in range(len(inspectText)):
@@ -98,18 +104,34 @@ def __getInstances(searchTerm, document):
         msgBox.exec()
 
     else:
+
+        highlightFmt = QTextCharFormat() 
+        highlightFmt.setBackground(QColor("blue"))
+        
+        cursor = QTextCursor(document)
         for instance in instances:
-            cursor = QTextCursor(document)
             cursor.setPosition(instance[0], QTextCursor.MoveMode.MoveAnchor) # Navigate cursor to instance
             cursor.setPosition(instance[1] + 1, QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
-            cursor.insertText(f"<span style=\"background-color:#3ac1d6;\" >{searchTerm} </span>")
             # Note that because the cursor positions itself between characters, the cursors final position must be offset + 1.
+            cursor.setCharFormat(highlightFmt)
 
-            # Highlighting text
-            highlightFmt = QTextCharFormat()
-            highlightBrush = QBrush()
-            highlightBrush.setColor(Qt.GlobalColor.blue)
-            highlightFmt.setBackground(highlightBrush)
-            cursor.mergeCharFormat(highlightFmt)
+
+"""
+Removes highlighting from document. Will be called when find popup is closed, when new text is entered into the find textbox or when text is replaced using the replace function.
+
+PARAMETERS:
+    instances - the instances array.
+    document - the QTextDocument for the currently active document in the editor.
+"""
+def __unhighlight(document):
+
+    defaultFmt = QTextCharFormat() 
+    defaultFmt.setBackground(QColor("#484D5D")) # Background will be reset to the background color of the editor 
+    cursor = QTextCursor(document)
+
+    cursor.setPosition(len(document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
+    cursor.setCharFormat(defaultFmt)
+
+
             
         
