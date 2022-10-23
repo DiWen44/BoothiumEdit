@@ -1,137 +1,199 @@
-from PyQt6.QtWidgets import QDialog, QLineEdit, QPushButton, QGridLayout, QMessageBox
+from PyQt6.QtWidgets import QDialog, QLineEdit, QPushButton, QGridLayout, QMessageBox, QTextEdit
 from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 
 
+
 """ 
-Top-level function that creates popup and provides a conduit via which the other functions in this module can be accessed.
+Creates popup and provides a conduit via which the functions in this module can be accessed.
 
-PARAMETERS:
-    Document - the QTextDocument currently active in the code editor.
+CONSTRUCTOR PARAMETERS:
+    editor - The QTextEdit representing the code editor.
 """
-def find(document):
-
-    popup = QDialog()
-    popup.setFixedSize(300, 100)
-    popup.setWindowTitle("Find")
-    popup.setStyleSheet("""color: white; 
-						background-color: #484D5D;
-                        font: Source Sans Pro;""")
-
-    layout = QGridLayout()
+class FindReplacePopup(QDialog):
 
 
-    findBox = QLineEdit(popup)
-    findBox.setFixedSize(120, 20)
-    findBox.setStyleSheet("background-color: #151821; border-style: none;")
-    findBox.setPlaceholderText("Find")
 
-    findBox.returnPressed.connect(lambda: __getInstances(findBox.text(), document))
- 
-    nextInstance = QPushButton("Next", popup)
-    nextInstance.setFixedSize(60, 20)
-    prevInstance = QPushButton("Previous", popup)
-    prevInstance.setFixedSize(60, 20)
+    def __init__(self, editor):
 
-    layout.addWidget(findBox, 0, 0)    
-    layout.addWidget(nextInstance, 0, 1)
-    layout.addWidget(prevInstance, 0, 2)
+        super().__init__()
+
+        self.setFixedSize(300, 100)
+        self.setWindowTitle("Find & Replace")
+        self.setStyleSheet("""color: white; 
+                            background-color: #484D5D;
+                            font: Source Sans Pro;""")
+
+        self.instances = [] # 2D array - Stores positions of the initial & final characters of all found text instances in form:[initial_character_position, final_character_position]  (will be mutated by __find)
+        self.editor = editor 
+
+        layout = QGridLayout()
+
+        findBox = QLineEdit(self)
+        findBox.setFixedSize(120, 20)
+        findBox.setStyleSheet("background-color: #151821; border-style: none;")
+        findBox.setPlaceholderText("Find")
+        findBox.returnPressed.connect(lambda: self.__find(findBox.text()))
+    
+        next = QPushButton("Next", self)
+        next.setFixedSize(60, 20)
+        next.clicked.connect(lambda: self.__nextInstance())
+
+        previous = QPushButton("Previous", self)
+        previous.setFixedSize(60, 20)
+        previous.clicked.connect(lambda: self.__prevInstance())
+
+        layout.addWidget(findBox, 0, 0)    
+        layout.addWidget(next, 0, 1)
+        layout.addWidget(previous, 0, 2)
+
+        repBox = QLineEdit(self)
+        repBox.setFixedSize(120, 20)
+        repBox.setStyleSheet("background-color: #151821; border-style: none;")
+        repBox.setPlaceholderText("Replace")
+
+        replace = QPushButton("Replace", self)
+        replace.setFixedSize(65, 20)
+        replaceAll = QPushButton("Replace All", self)
+        replaceAll.setFixedSize(65, 20)
+
+        layout.addWidget(repBox, 1, 0)
+        layout.addWidget(replace, 1, 1)
+        layout.addWidget(replaceAll, 1, 2)
+
+        self.setLayout(layout)
+        self.exec()
 
 
-    repBox = QLineEdit(popup)
-    repBox.setFixedSize(120, 20)
-    repBox.setStyleSheet("background-color: #151821; border-style: none;")
-    repBox.setPlaceholderText("Replace")
 
-    replace = QPushButton("Replace", popup)
-    replace.setFixedSize(65, 20)
-    replaceAll = QPushButton("Replace All", popup)
-    replaceAll.setFixedSize(65, 20)
-
-    layout.addWidget(repBox, 1, 0)
-    layout.addWidget(replace, 1, 1)
-    layout.addWidget(replaceAll, 1, 2)
+    """
+    Reimplementation of QWidget.closeEvent() 
+    
+    When user presses the exit button, this removes highlights from the editor before closing window
+    """
+    def closeEvent(self, event):
+        self.__unhighlight()
+        self.close()
 
 
-    popup.setLayout(layout)
-    popup.exec()
 
+    """
+    Gets instances of found text and highlights results.
 
-"""
-Gets instances of found text and highlights results
+    PARAMETERS:
+        searchTerm - The text to search for.
+    """
+    def __find(self, searchTerm):
 
-PARAMETERS:
-    searchTerm - The text to search for.
-    document - the QTextDocument for the currently active document in the editor (So we can highlight text).
-"""
-def __getInstances(searchTerm, document):
+        # Exit function if no text was entered
+        if searchTerm == "":
+            return
 
-    # Exit function if no text was entered
-    if searchTerm == "":
-        return
+        document = self.editor.document()
 
-    __unhighlight(document) # Remove previous highlights from the document
+        self.__unhighlight() # Remove previous highlightings from the document that were created by a previous function call.
+        self.instances = [] # Clear instances array of any instances left over from a previous function call.
 
+        text = document.toPlainText()
+        position = [] # Represents one instance of search term. Stores the position of initial & final character
+        isDiff = False # Flag indicating whether text being examined is discrepant from searchTerm
 
-    inspectText = document.toPlainText()
-    position = [] # Represents one instance of search term. Stores the position of initial & final character
-    instances = [] # 2D array - Stores positions of the initial & final characters of all found text instances.
-    isDiff = False # Flag indicating whether text being examined is discrepant from searchTerm
-
-    for i in range(len(inspectText)):
-            
-            if inspectText[i] == searchTerm[0]:
-
-                if len(searchTerm) > 1: # As we have established that the first characters are equal, if the searchTerm only has 1 character then we can conclude the scanning of this particular instance.
-
-                    for offset in range(1, len(searchTerm)): # Range starts at 1 as we have already established that the first characters are equal.
-                        if searchTerm[offset] != inspectText[i + offset]:
-                            isDiff = True
-                            break
+        for i in range(len(text)):
                 
-                else:
-                    offset = 0 # There is no offset if searchTerm only has 1 character.
+                if text[i] == searchTerm[0]:
+
+                    if len(searchTerm) > 1: # As we have established that the first characters are equal, if the searchTerm only has 1 character then we can conclude the scanning of this particular instance.
+
+                        for offset in range(1, len(searchTerm)): # Range starts at 1 as we have already established that the first characters are equal.
+                            if searchTerm[offset] != text[i + offset]:
+                                isDiff = True
+                                break
+                    
+                    else:
+                        offset = 0 # There is no offset if searchTerm only has 1 character.
+                
+                    if not isDiff:
+                        position = [i, i + offset]
+                        self.instances.append(position)
+
+                    isDiff = False
+
+        if self.instances == []: # In case no instances are found
+            msgBox = QMessageBox()
+            msgBox.setWindowTitle("BoothiumEdit")
+            msgBox.setText(f"Couldn't find '{searchTerm}'")
+            msgBox.exec()
+
+        else:
+
+            highlightFmt = QTextCharFormat() 
+            highlightFmt.setBackground(QColor("#40d4db"))
+            cursor = QTextCursor(document)
+
+            for instance in self.instances:
+                cursor.setPosition(instance[0], QTextCursor.MoveMode.MoveAnchor) # Navigate cursor to instance
+                cursor.setPosition(instance[1] + 1, QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
+                # Note that because the cursor positions itself between characters, the cursors final position must be offset + 1.
+                cursor.setCharFormat(highlightFmt)
+                if instance == self.instances[0]: # Have user's cursor select first instance
+                    self.editor.setTextCursor(cursor) 
             
-                if not isDiff:
-                    position = [i, i + offset]
-                    instances.append(position)
 
-                isDiff = False
 
-    if instances == []: # In case no instances are found
-        msgBox = QMessageBox()
-        msgBox.setWindowTitle("BoothiumEdit")
-        msgBox.setText(f"Couldn't find '{searchTerm}'")
-        msgBox.exec()
+    # Removes highlighting from document. Will be called when find popup is closed, when new text is entered into the find textbox (to remove leftover highlighting from previous call of __find()) or when text is replaced using the replace function.
+    def __unhighlight(self):
 
-    else:
-
-        highlightFmt = QTextCharFormat() 
-        highlightFmt.setBackground(QColor("blue"))
-        
+        document = self.editor.document()
+        defaultFmt = QTextCharFormat() 
+        defaultFmt.setBackground(QColor("#484D5D")) # Background will be reset to the background color of the editor 
         cursor = QTextCursor(document)
-        for instance in instances:
-            cursor.setPosition(instance[0], QTextCursor.MoveMode.MoveAnchor) # Navigate cursor to instance
-            cursor.setPosition(instance[1] + 1, QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
-            # Note that because the cursor positions itself between characters, the cursors final position must be offset + 1.
-            cursor.setCharFormat(highlightFmt)
+
+        cursor.setPosition(len(document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
+        cursor.setCharFormat(defaultFmt)
 
 
-"""
-Removes highlighting from document. Will be called when find popup is closed, when new text is entered into the find textbox or when text is replaced using the replace function.
 
-PARAMETERS:
-    instances - the instances array.
-    document - the QTextDocument for the currently active document in the editor.
-"""
-def __unhighlight(document):
+    # Moves user's cursor to next instance  
+    def __nextInstance(self):
 
-    defaultFmt = QTextCharFormat() 
-    defaultFmt.setBackground(QColor("#484D5D")) # Background will be reset to the background color of the editor 
-    cursor = QTextCursor(document)
+        if len(self.instances) < 1: # There is no next instance if there is only 1 instance, so exit the function in that case. If there are no instances, the user pressed the button without any instances having been found.
+            return
 
-    cursor.setPosition(len(document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
-    cursor.setCharFormat(defaultFmt)
+        currentCursor = self.editor.textCursor()
+        newCursor = QTextCursor(self.editor.document())
+
+        for i in range(len(self.instances)): # Find instance which user's current cursor is at
+            if (self.instances)[i][0] == currentCursor.anchor():
+                try:
+                    newCursor.setPosition((self.instances)[i + 1][0], QTextCursor.MoveMode.MoveAnchor) # Navigate new cursor to next instance from the instance user's cursor is at
+                    newCursor.setPosition((self.instances)[i + 1][1] + 1, QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
+                    break
+                    # Note that because the cursor positions itself between characters, the cursors final position must be the final character's position + 1.
+                except IndexError: # An IndexError will be raised from the above statement if there is no instance after the current one. In this case we should put the cursor back to the first instance.
+                    newCursor.setPosition((self.instances)[0][0], QTextCursor.MoveMode.MoveAnchor) 
+                    newCursor.setPosition((self.instances)[0][1] + 1, QTextCursor.MoveMode.KeepAnchor) 
+                    
+        self.editor.setTextCursor(newCursor) 
 
 
-            
-        
+
+    # Moves user's cursor to previous instance
+    def __prevInstance(self):        
+
+        if len(self.instances) < 1: # There is no previous instance if there is only 1 instance, so exit the function in that case. If there are no instances, the user pressed the button without any instances having been found.
+            return
+
+        currentCursor = self.editor.textCursor()
+        newCursor = QTextCursor(self.editor.document())
+
+        for i in range(len(self.instances)): # Find instance which user's current cursor is at
+            if self.instances[i][0] == currentCursor.anchor():
+                try:
+                    newCursor.setPosition(self.instances[i - 1][0], QTextCursor.MoveMode.MoveAnchor) # Navigate new cursor to next instance from the instance user's cursor is at
+                    newCursor.setPosition(self.instances[i - 1][1] + 1, QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
+                    # Note that because the cursor positions itself between characters, the cursors final position must be the final character's position + 1.
+                    break
+                except IndexError: # An IndexError will be raised from the above statement if there is no instance before the current one. In this case we should put the cursor to the last instance.
+                    newCursor.setPosition(self.instances[len(self.instances)][0], QTextCursor.MoveMode.MoveAnchor) 
+                    newCursor.setPosition(self.instances[len(self.instances)][1] + 1, QTextCursor.MoveMode.KeepAnchor) 
+                    
+        self.editor.setTextCursor(newCursor) 

@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         try:
             fileName = sys.argv[1]
         except IndexError: # Handle user not providing a filename
-            # fileName = "C:\\Users\\devin\\OneDrive\\Documents\\BoothiumEdit\\test.txt"
+            # TESTING ONLY: fileName = "C:\\Users\\devin\\OneDrive\\Documents\\BoothiumEdit\\test.txt"
             sys.exit("ERROR: No filename specified")
 
         try:
@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
         saveAsAct.setShortcut(QKeySequence("Ctrl+Shift+s"))
         
         findAct = QAction("Find", self)
-        findAct.triggered.connect(lambda: findReplace.find(self.centralWidget().document()))
+        findAct.triggered.connect(lambda: findReplace.FindReplacePopup(self.centralWidget()))
         findAct.setShortcut(QKeySequence("Ctrl+f"))
 
         fileMenu = menuBar.addMenu("&File")
