@@ -4,10 +4,10 @@ from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 
 
 """ 
-Creates popup and provides a conduit via which the functions in this module can be accessed.
+Represents the popup containing the find & replace functionality
 
 CONSTRUCTOR PARAMETERS:
-    editor - The QTextEdit representing the code editor.
+    editor - The code editor.
 """
 class FindReplacePopup(QDialog):
 
@@ -151,7 +151,7 @@ class FindReplacePopup(QDialog):
 
         document = self.editor.document()
         defaultFmt = QTextCharFormat() 
-        defaultFmt.setBackground(QColor("#484D5D")) # Background will be reset to the background color of the editor 
+        defaultFmt.setBackground(QColor("#0E0E10")) # Background will be reset to the background color of the editor 
         cursor = QTextCursor(document)
 
         cursor.setPosition(len(document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
@@ -219,7 +219,8 @@ class FindReplacePopup(QDialog):
         if newText == "":
             return
 
-        if self.instances == []: # This means that the user has pressed the replace button without first finding any instances, so exit the function in this case.
+        # This means that the user has pressed the replace button without first finding any instances, so exit the function in this case.
+        if self.instances == []: 
             return
 
         originalAnchor = self.editor.textCursor().anchor()
@@ -227,7 +228,7 @@ class FindReplacePopup(QDialog):
         
         # Removing highlighting from instance, as after replacement it will no longer be an instance of the original search term.
         defaultFmt = QTextCharFormat() 
-        defaultFmt.setBackground(QColor("#484D5D")) # Background will be reset to the background color of the editor 
+        defaultFmt.setBackground(QColor("#0E0E10")) # Background will be reset to the background color of the editor 
         self.editor.textCursor().setCharFormat(defaultFmt)
 
         self.editor.textCursor().insertText(newText) # insertText() also deletes current selection before inserting new text
@@ -237,10 +238,10 @@ class FindReplacePopup(QDialog):
         so we need to reset these to their previous values in order to be able to find the user's cursor's in self.instances[], 
         which in turn is necessary for __nextInstance to work.
         """
-        cursorx = QTextCursor(self.editor.document())
-        cursorx.setPosition(originalAnchor, QTextCursor.MoveMode.MoveAnchor)
-        cursorx.setPosition(originalPos, QTextCursor.MoveMode.KeepAnchor)
-        self.editor.setTextCursor(cursorx)
+        resetCursor = QTextCursor(self.editor.document())
+        resetCursor.setPosition(originalAnchor, QTextCursor.MoveMode.MoveAnchor)
+        resetCursor.setPosition(originalPos, QTextCursor.MoveMode.KeepAnchor)
+        self.editor.setTextCursor(resetCursor)
 
         """
         ACCOUNTING FOR CHARACTER SHIFT:
