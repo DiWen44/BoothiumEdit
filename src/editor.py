@@ -27,34 +27,31 @@ class Editor(QTextEdit):
 
     """Reimplementation of QWidget.keyPressEvent(), to check if automatic indentation and/or automatic bracket & quotation mark closure is required after the key press"""
     def keyPressEvent(self, event):
-        
-        cursor = self.textCursor()
+       
+        originalCursorPos = self.textCursor().position() # Cursor's position before "super().keyPressEvent(event)" is called
 
-        match event.key():
+        super().keyPressEvent(event)  # Do as normal first
 
-            # Automatic indentation
-            case Qt.Key.Key_Return:
-                originalCursor = cursor
-                originalCursorPos = originalCursor.position() # Cursor's position before "return" is pressed
-                super().keyPressEvent(event) 
-                originalCursor.setPosition(originalCursorPos) # Cursor variable changes to match editor's cursor, so reset it's position to previous value in order to pass it to __autoIndent() as the cursor before "return" was pressed
-                self.__autoIndent(originalCursor)
-                return
-        
-            # Bracket autoclosure
-            case Qt.Key.Key_BracketLeft: # Square bracket/Bracket
-
-            case Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
-            case Qt.Key.Key_BraceLeft: # Curly bracket/Brace
-        
-            # Quotemark autoclosure
-            case Qt.Key.Key_Apostrophe:
-                
-            case Qt.Key.Key_QuoteLeft:
-
-
-
-        super().keyPressEvent(event) # Do as normal 
+        # Automatic indentation
+        if event.key() ==  Qt.Key.Key_Return:
+            # Create cursor that represents the user's cursor before "return" was pressed
+            originalCursor = QTextCursor(self.document())
+            originalCursor.setPosition(originalCursorPos) 
+            self.__autoIndent(originalCursor)
+            
+        # Bracket autoclosure
+        elif event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
+            self.textCursor().insertText(']')
+        elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
+            self.textCursor().insertText(')')
+        elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
+            self.textCursor().insertText('}')
+    
+        # Quotemark autoclosure
+        elif event.key() ==  Qt.Key.Key_Apostrophe:
+            self.textCursor().insertText('\'')
+        elif event.key() ==  Qt.Key.Key_QuoteDbl:
+            self.textCursor().insertText('"')
 
     
 
@@ -74,19 +71,20 @@ class Editor(QTextEdit):
 
         """
         There may be previous indents at the beginning of the line the cursor was on before "return" was pressed. 
-        The new line must be indented to the same level as the previous, and one more if the previous line ended with a colon or bracket.
+        The new line must be indented to the same level as the previous (and one more if the previous line ended with a colon or bracket),
+        so here we get the number of indents of the previous line.
         """
-        line = ""
+        prevLine = "" # String representing the previous line.
         char = self.toPlainText()[cursorBeforeReturn.position() - 1] # The character occuring immediately before the cursor in the document
         charCount = 2 # charCount begins as 2, because char is initially the character 1 position before the cursor's position
         while not (char == "\n"): # Get all characters on the line by iterating backwards from cursor until a newline character is reached
-            line = line + char # Appends character to line
+            prevLine = prevLine + char # Appends character to line
             char = self.toPlainText()[cursorBeforeReturn.position() - charCount]
             charCount += 1
 
-        line = line[::-1] # Since iteration started at the end of the line, the line string is backwards. This inverts it so the characters are in the correct order.
+        prevLine = prevLine[::-1] # Since iteration started at the end of the line, the line string is backwards. This inverts it so the characters are in the correct order.
 
-        for i in line:
+        for i in prevLine:
             if i == "\t":
                 indentNo += 1
             else: # Any tabs on the line occuring after the first non-tab character are irrelevant, so we can end the loop.
@@ -107,6 +105,6 @@ class Editor(QTextEdit):
             indentNo += 1
 
         for indent in range(indentNo):
-            self.textCursor().insertText('\t') # Insert tab character
+            self.textCursor().insertText('\t')
 
 
