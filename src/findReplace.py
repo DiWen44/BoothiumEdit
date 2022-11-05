@@ -92,7 +92,8 @@ class FindReplacePopup(QDialog):
 
 
     """
-    Gets instances of searchTerm, adds the positions of these instances to self.instances[], and highlights the instances in the editor.
+    Gets instances of searchTerm, adds the positions of these instances to self.instances[], and highlights the instances in the editor. 
+    The user's cursor will be moved to select the first instance
 
     PARAMETERS:
         searchTerm - The text to search for.
@@ -277,9 +278,9 @@ class FindReplacePopup(QDialog):
                 if i[0] > self.editor.textCursor().anchor(): # Only shift instances if they occur after instance being replaced
                     i[0] = i[0] + lengthDifference
                     i[1] = i[1] + lengthDifference
-    
-        self.__nextInstance() # Have user's cursor select the next instance, now that the character shift has been accounted for in self.instances. 
-        self.instances.remove([originalAnchor, originalPos]) # Remove currently selected instance from self.instances, as after replacement it no longer represents an instance of the original found text. 
+
+        self.__nextInstance()
+        self.instances.remove([originalAnchor, originalPos]) # Remove just-replaced instance from self.instances, as after replacement it no longer represents an instance of the original found text. 
         
 
 

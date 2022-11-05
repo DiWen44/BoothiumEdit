@@ -44,6 +44,7 @@ class SettingsPopup(QDialog):
         self.exec()
 
 
+
 # Represents 1 individual on/off setting, and is comprised of that setting's name and the dropdown menu for it. In the form of a QHBoxLayout that is to be added to the popup's layout.
 class Setting(QHBoxLayout):
 
