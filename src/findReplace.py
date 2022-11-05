@@ -20,8 +20,8 @@ class FindReplacePopup(QDialog):
         self.setFixedSize(300, 100)
         self.setWindowTitle("Find & Replace")
         self.setStyleSheet("""color: white; 
-                            background-color: #484D5D;
-                            font: Source Sans Pro;""")
+                            background-color: #0E0E10;
+                            font: Garet;""")
 
         self.editor = editor 
         self.instances = [] # 2D array - Stores positions of the start & end of all found text instances in form: [start, end] 
@@ -33,18 +33,23 @@ class FindReplacePopup(QDialog):
 
         layout = QGridLayout()
 
+        textBoxStyle = "background-color: #151821; border-style: none;"
+        btnStyle = "background-color: #151821; border-style: none;"
+
         findBox = QLineEdit(self)
         findBox.setFixedSize(120, 20)
-        findBox.setStyleSheet("background-color: #151821; border-style: none;")
+        findBox.setStyleSheet(textBoxStyle)
         findBox.setPlaceholderText("Find")
         findBox.returnPressed.connect(lambda: self.__find(findBox.text()))
     
         next = QPushButton("Next", self)
         next.setFixedSize(60, 20)
+        next.setStyleSheet(btnStyle)
         next.clicked.connect(self.__nextInstance)
 
         previous = QPushButton("Previous", self)
         previous.setFixedSize(60, 20)
+        previous.setStyleSheet(btnStyle)
         previous.clicked.connect(self.__prevInstance)
 
         layout.addWidget(findBox, 0, 0)    
@@ -53,15 +58,17 @@ class FindReplacePopup(QDialog):
 
         repBox = QLineEdit(self)
         repBox.setFixedSize(120, 20)
-        repBox.setStyleSheet("background-color: #151821; border-style: none;")
+        repBox.setStyleSheet(textBoxStyle)
         repBox.setPlaceholderText("Replace")
 
         replace = QPushButton("Replace", self)
         replace.setFixedSize(65, 20)
+        replace.setStyleSheet(btnStyle)
         replace.clicked.connect(lambda: self.__replace(repBox.text()))
 
         replaceAll = QPushButton("Replace All", self)
         replaceAll.setFixedSize(65, 20)
+        replaceAll.setStyleSheet(btnStyle)
         replaceAll.clicked.connect(lambda: self.__replaceAll(repBox.text()))
 
         layout.addWidget(repBox, 1, 0)
@@ -111,7 +118,7 @@ class FindReplacePopup(QDialog):
 
                     if len(searchTerm) > 1: # As we have established that the first characters are equal, if the searchTerm only has 1 character then we can conclude the scanning of this particular instance.
 
-                        for offset in range(1, len(searchTerm)): # Range starts at 1 as we have already established that the first characters are equal.
+                        for offset in range(1, len(searchTerm)): # Range starts at 1, not 0, as we have already established that the first characters are equal.
                             if searchTerm[offset] != text[i + offset]:
                                 isDiff = True
                                 break
@@ -123,7 +130,7 @@ class FindReplacePopup(QDialog):
                         position = [i, i + offset + 1]  # Note that because QTextCursor positions itself between characters, the cursors final position must be offset + 1.
                         self.instances.append(position)
 
-                    isDiff = False
+                    isDiff = False # Reset difference flag.
 
         if self.instances == []: # In case no instances are found
             msgBox = QMessageBox()
@@ -140,7 +147,7 @@ class FindReplacePopup(QDialog):
             for instance in self.instances:
                 cursor.setPosition(instance[0], QTextCursor.MoveMode.MoveAnchor) # Navigate cursor to instance
                 cursor.setPosition(instance[1], QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
-                cursor.setCharFormat(highlightFmt)
+                cursor.setCharFormat(highlightFmt) # Apply highlighting
                 if instance == self.instances[0]: # Have user's cursor select first instance
                     self.editor.setTextCursor(cursor) 
             
@@ -162,6 +169,8 @@ class FindReplacePopup(QDialog):
     # Moves user's cursor to next instance  
     def __nextInstance(self):
 
+        print("Next instance was called")
+
         if len(self.instances) <= 1: # There is no next instance if there is only 1 instance, so exit the function in that case. If there are no instances, the user pressed the button without any instances having been found.
             return
 
@@ -169,13 +178,16 @@ class FindReplacePopup(QDialog):
         newCursor = QTextCursor(self.editor.document())
 
         for i in range(len(self.instances)): # Find instance which user's current cursor is at
-            if (self.instances)[i][0] == currentCursor.anchor():
+
+            if self.instances[i][0] == currentCursor.anchor():
+
                 try:
                     newCursor.setPosition((self.instances)[i + 1][0], QTextCursor.MoveMode.MoveAnchor) # Navigate new cursor to next instance from the instance user's cursor is at
                     newCursor.setPosition((self.instances)[i + 1][1], QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
                     break
                     # Note that because the cursor positions itself between characters, the cursors final position must be the final character's position + 1.
-                except IndexError: # An IndexError will be raised from the above statement if there is no instance after the current one. In this case we should put the cursor back to the first instance.
+
+                except IndexError: # An IndexError will be raised from the above statement if there is no instance after the currently selected one. In this case we should put the cursor back to the first instance.
                     newCursor.setPosition((self.instances)[0][0], QTextCursor.MoveMode.MoveAnchor) 
                     newCursor.setPosition((self.instances)[0][1], QTextCursor.MoveMode.KeepAnchor) 
                     
@@ -193,13 +205,16 @@ class FindReplacePopup(QDialog):
         newCursor = QTextCursor(self.editor.document())
 
         for i in range(len(self.instances)): # Find instance which user's current cursor is at
+
             if self.instances[i][0] == currentCursor.anchor():
+
                 try:
                     newCursor.setPosition(self.instances[i - 1][0], QTextCursor.MoveMode.MoveAnchor) # Navigate new cursor to next instance from the instance user's cursor is at
                     newCursor.setPosition(self.instances[i - 1][1], QTextCursor.MoveMode.KeepAnchor) # Select whole instance by moving position to end of instance but maintaining anchor at beginning.
                     # Note that because the cursor positions itself between characters, the cursors final position must be the final character's position + 1.
                     break
-                except IndexError: # An IndexError will be raised from the above statement if there is no instance before the current one. In this case we should put the cursor to the last instance.
+
+                except IndexError: # An IndexError will be raised from the above statement if there is no instance before the currently selected one. In this case we should put the cursor to the last instance.
                     newCursor.setPosition(self.instances[len(self.instances)][0], QTextCursor.MoveMode.MoveAnchor) 
                     newCursor.setPosition(self.instances[len(self.instances)][1], QTextCursor.MoveMode.KeepAnchor) 
                     
@@ -235,7 +250,7 @@ class FindReplacePopup(QDialog):
 
         """
         insertText() moves the user's cursor's anchor and position to the end of the insertion, 
-        so we need to reset these to their previous values in order to be able to find the user's cursor's in self.instances[], 
+        so we need to reset these to their previous values in order to be able to find the user's cursor in self.instances[], 
         which in turn is necessary for __nextInstance to work.
         """
         resetCursor = QTextCursor(self.editor.document())
@@ -280,7 +295,7 @@ class FindReplacePopup(QDialog):
         if newText == "":
             return
 
-        if self.instances == []: # This means that the user has pressed the replace button without first finding any instances, so exit the function in this case.
+        if self.instances == []:  # This means that the user has pressed the replace button without first finding any instances, so exit the function in this case.
             return
 
         for i in range(len(self.instances)):

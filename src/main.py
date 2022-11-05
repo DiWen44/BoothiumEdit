@@ -7,6 +7,7 @@ import platform
 from editor import Editor
 import saving
 import findReplace
+import settings
 
 
 app = QApplication([])
@@ -64,13 +65,18 @@ class MainWindow(QMainWindow):
         saveAsAct.triggered.connect(lambda: saving.saveAs(self.centralWidget().toPlainText()))
         saveAsAct.setShortcut(QKeySequence("Ctrl+Shift+s"))
 
-        findAct = QAction("Find", self)
-        findAct.triggered.connect(lambda: findReplace.FindReplacePopup(self.centralWidget()))
-        findAct.setShortcut(QKeySequence("Ctrl+f"))
+        settingsAct = QAction("Settings", self)
+        settingsAct.triggered.connect(settings.SettingsPopup)
 
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addAction(saveAct)
         fileMenu.addAction(saveAsAct)
+        fileMenu.addSeparator()
+        fileMenu.addAction(settingsAct)
+
+        findAct = QAction("Find", self)
+        findAct.triggered.connect(lambda: findReplace.FindReplacePopup(self.centralWidget()))
+        findAct.setShortcut(QKeySequence("Ctrl+f"))
 
         editMenu = menuBar.addMenu("&Edit")
         editMenu.addAction(findAct)
