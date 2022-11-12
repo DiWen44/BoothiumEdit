@@ -4,8 +4,8 @@ BoothiumEdit is a small, minimalistic GUI text editor writting in Python, using 
 
 ## Requirements
 
-Python 3.10 or above
-PyQt6 installed via pip
+- Python 3.10 or above
+- PyQt6 installed via pip
 
 ## Usage
 
@@ -18,9 +18,9 @@ To open the editor, type the following into the shell:
 
 BoothiumEdit allows the use of all standard text editing shortcuts, with a few additions:
 
-    - Ctrl-s: Save
-    - Ctrl-Shift-s: Save As
-    - Ctrl-f: Find & Replace
+- Ctrl-s: Save
+- Ctrl-Shift-s: Save As
+- Ctrl-f: Find & Replace
 
 The functions of the aforementioned 3 shortcuts can also be accessed in a GUI manner, through the menu bar.
 
@@ -32,11 +32,11 @@ BoothiumEdit allows you to edit settings both through a GUI popup, and by direct
 
 BoothiumEdit has syntax highlighting support for the the following languages:
 
-    - Python
-    - C
-    - C++
-    - JavaScript
-    - Java
-    - Go
+- Python
+- C
+- C++
+- JavaScript
+- Java
+- Go
 
 Language support can be added manually by editing the "BEditSettings.json" file.
