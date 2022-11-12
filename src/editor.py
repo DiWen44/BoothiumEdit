@@ -1,6 +1,11 @@
 from PyQt6.QtWidgets import QTextEdit
-from PyQt6.QtGui import QTextDocument, QFontMetrics, QTextCursor
+from PyQt6.QtGui import QTextDocument, QTextCursor
 from PyQt6.QtCore import Qt
+
+import json
+import os
+import sys
+
 
 
 """
@@ -27,31 +32,40 @@ class Editor(QTextEdit):
 
     """Reimplementation of QWidget.keyPressEvent(), to check if automatic indentation and/or automatic bracket & quotation mark closure is required after the key press"""
     def keyPressEvent(self, event):
-       
+        
+        # Loading settings file into dictionary
+        sFilePath = os.path.join(sys.path[0], "BEditSettings.json")
+        with open(sFilePath, 'r+') as file:
+            settings = json.load(file)
+
         originalCursorPos = self.textCursor().position() # Cursor's position before "super().keyPressEvent(event)" is called
 
         super().keyPressEvent(event)  # Do as normal first
 
         # Automatic indentation
-        if event.key() ==  Qt.Key.Key_Return:
+        if (event.key() ==  Qt.Key.Key_Return) and settings["autoIndent"]:
             # Create cursor that represents the user's cursor before "return" was pressed
             originalCursor = QTextCursor(self.document())
             originalCursor.setPosition(originalCursorPos) 
             self.__autoIndent(originalCursor)
-            
+
         # Bracket autoclosure
-        elif event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
-            self.textCursor().insertText(']')
-        elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
-            self.textCursor().insertText(')')
-        elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
-            self.textCursor().insertText('}')
-    
+        if settings["autoCloseBrckt"]:    
+            
+            if event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
+                self.textCursor().insertText(']')
+            elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
+                self.textCursor().insertText(')')
+            elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
+                self.textCursor().insertText('}')
+
         # Quotemark autoclosure
-        elif event.key() ==  Qt.Key.Key_Apostrophe:
-            self.textCursor().insertText('\'')
-        elif event.key() ==  Qt.Key.Key_QuoteDbl:
-            self.textCursor().insertText('"')
+        if settings["autoCloseQt"]:
+
+            if event.key() ==  Qt.Key.Key_Apostrophe:
+                self.textCursor().insertText('\'')
+            elif event.key() ==  Qt.Key.Key_QuoteDbl:
+                self.textCursor().insertText('"')
 
     
 
@@ -101,6 +115,7 @@ class Editor(QTextEdit):
         while j.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered             
             j = self.toPlainText()[cursorBeforeReturn.position() - jCount]
             jCount += 1
+            
         if (j in brackets) or (j == ":"): # Indent if character is colon or a bracket
             indentNo += 1
 

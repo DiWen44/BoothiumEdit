@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QTextEdit, QMainWindow, QMenuBar, QMenu
+from PyQt6.QtWidgets import QApplication, QTextEdit, QMainWindow, QMenuBar, QMenu, QMessageBox, QPushButton
 from PyQt6.QtGui import QAction, QKeySequence, QTextDocument
 
 import sys
@@ -13,8 +13,10 @@ import settings
 app = QApplication([])
 
 
+
 class MainWindow(QMainWindow):
 	
+    
     def __init__(self):
 
         super().__init__()
@@ -24,17 +26,15 @@ class MainWindow(QMainWindow):
 
         # Getting file from command line arguments
         try:
-            fileName = sys.argv[1]
+            self.filePath = sys.argv[1]
         except IndexError: # Handle user not providing a filename
-            # TESTING ONLY: fileName = "C:\\Users\\devin\\OneDrive\\Documents\\BoothiumEdit\\test.txt"
             sys.exit("ERROR: No filename specified")
 
         try:
-            file = open(fileName, "r+")
+            with open(self.filePath, "r") as file:
+                fileText = file.read()
         except FileNotFoundError: # Handle user providing nonexistent file
             sys.exit("ERROR: File does not exist")
-
-        fileText = file.read()
 
         # Get name of file without rest of path
         if platform.system() == "Windows": # Account for windows using "\" as path seperator rather than "/"
@@ -42,8 +42,8 @@ class MainWindow(QMainWindow):
         else:
             pathSeperator = '/'
             
-        lastPathSepIndex = fileName[::-1].index(pathSeperator) # Reverse file path to facilitate getting index of last path seperator 
-        fileNameNoPath = ((fileName[::-1])[:lastPathSepIndex])[::-1] # Get characters of reverse path that precede last path seperator, then reverse this to get them finally in the right order
+        lastPathSepIndex = self.filePath[::-1].index(pathSeperator) # Reverse file path to facilitate getting index of last path seperator 
+        fileNameNoPath = ((self.filePath[::-1])[:lastPathSepIndex])[::-1] # Get characters of reverse path that precede last path seperator, then reverse this to get them finally in the right order
 
         self.setWindowTitle("BoothiumEdit - " + fileNameNoPath)
 
@@ -58,7 +58,7 @@ class MainWindow(QMainWindow):
                                 """)
 
         saveAct = QAction("Save", self)
-        saveAct.triggered.connect(lambda: saving.save(fileName, self.centralWidget().toPlainText()))
+        saveAct.triggered.connect(lambda: saving.save(self.filePath, self.centralWidget().toPlainText()))
         saveAct.setShortcut(QKeySequence("Ctrl+s"))
                                                         
         saveAsAct = QAction("Save As", self)
@@ -81,6 +81,37 @@ class MainWindow(QMainWindow):
         editMenu = menuBar.addMenu("&Edit")
         editMenu.addAction(findAct)
 
+
+    # Reimplementation of QWidget.closeEvent(). Prompts user to save if text in editor is discrepant from text in file 
+    def closeEvent(self, event):
+
+        editorText = self.centralWidget().toPlainText()
+
+        with open(self.filePath, "r") as file:
+            fileText = file.read()
+
+        if editorText != fileText:
+
+            msgBox = QMessageBox(self)
+            msgBox.setWindowTitle("BoothiumEdit")
+            msgBox.setText("You have unsaved changes. Do you want to save these changes before exiting?")
+
+            save = QPushButton("Save")
+
+            def saveAndExit(newText):
+                saving.save(self.filePath, newText)
+                self.close()
+
+            save.clicked.connect(lambda: saveAndExit(editorText))
+            msgBox.addButton(save, QMessageBox.ButtonRole.AcceptRole)
+
+            discard = QPushButton("Discard")
+            discard.clicked.connect(lambda: self.close())
+            msgBox.addButton(discard, QMessageBox.ButtonRole.RejectRole)
+
+            msgBox.exec()
+
+    
 
 window = MainWindow()
 window.show()

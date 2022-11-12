@@ -12,7 +12,6 @@ CONSTRUCTOR PARAMETERS:
 class FindReplacePopup(QDialog):
 
 
-
     def __init__(self, editor):
 
         super().__init__()
@@ -154,7 +153,11 @@ class FindReplacePopup(QDialog):
             
 
 
-    # Removes highlighting from document. Will be called when find popup is closed, when new text is entered into the find textbox (to remove leftover highlighting from previous call of __find()) or when text is replaced using the replace function.
+    """
+    Removes highlighting from document. 
+    Will be called when popup is closed, when new text is entered into the find textbox (to remove leftover highlighting from previous call of __find())
+    or when text is replaced using the replaceAll() function.
+    """
     def __unhighlight(self):
 
         document = self.editor.document()
@@ -169,8 +172,6 @@ class FindReplacePopup(QDialog):
 
     # Moves user's cursor to next instance  
     def __nextInstance(self):
-
-        print("Next instance was called")
 
         if len(self.instances) <= 1: # There is no next instance if there is only 1 instance, so exit the function in that case. If there are no instances, the user pressed the button without any instances having been found.
             return
@@ -227,7 +228,7 @@ class FindReplacePopup(QDialog):
     Replace instance of found text on which the user's cursor is positioned with new text, then move user's cursor to next instance.
 
         PARAMETERS:
-            - newText - The text to replace the selected instance with.
+            newText - The text to replace the selected instance with.
     """
     def __replace(self, newText):
         
@@ -288,7 +289,7 @@ class FindReplacePopup(QDialog):
     Replace all instances of found text in file with new text.
 
         PARAMETERS:
-            - newText - The text to replace the selected instance with.
+            newText - The text to replace the selected instance with.
     """
     def __replaceAll(self, newText):
         
