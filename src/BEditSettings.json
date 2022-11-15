@@ -1,0 +1,8 @@
+{
+"autoCloseBrckt": true, 
+"autoCloseQt": true, 
+"autoIndent": true, 
+"autosave": true, 
+"brcktPairHighlight": true,
+"syntaxHighlight": true
+}
