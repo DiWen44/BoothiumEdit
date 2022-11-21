@@ -17,8 +17,9 @@ def saveAs(text):
 		return
 
 	try:
-		file = open(path, 'w') # File's contents are automatically erased when opened in write mode
+		file = open(path, 'w')
 		file.write(text)
+		
 	except FileNotFoundError: # Make file if it doesn't exist
 		os.mknod(path)
 		file = open(path, 'w')

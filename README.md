@@ -28,6 +28,8 @@ The functions of the aforementioned 3 shortcuts can also be accessed in a GUI ma
 
 BoothiumEdit allows you to edit settings both through a GUI popup, and by directly editing a JSON file called "BEditSettings.json".
 
+To access the settings popup, go to the menu bar and select File > Settings. If you want to open "BEditSettings.json", the popup has a button at the bottom that opens the file in a new editor window.
+
 ## Language Support
 
 BoothiumEdit has syntax highlighting support for the the following languages:

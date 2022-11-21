@@ -7,7 +7,7 @@ from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 Represents the popup containing the find & replace functionality
 
 CONSTRUCTOR PARAMETERS:
-    editor - The code editor.
+    editor - The QTextEditor representing the code editor textbox.
 """
 class FindReplacePopup(QDialog):
 
@@ -23,12 +23,12 @@ class FindReplacePopup(QDialog):
                             font: Garet;""")
 
         self.editor = editor 
+
         self.instances = [] # 2D array - Stores positions of the start & end of all found text instances in form: [start, end] 
-        """
-        Note: Because each subarray of self.instances[] is designed to hold the anchor (start) and position (end) of a hypothetical QTextCursor that selects the instance, 
-        the second element of the subarray (i.e the "end") will be 1 + the position of the final character of the instance within the document.
-        This is because a QTextCursor positions itself BETWEEN characters, so the end of the cursor's selection is between the last character of the instance and the following character
-        """
+
+        # Note: Because each subarray of self.instances[] is designed to hold the anchor (start) and position (end) of a hypothetical QTextCursor that selects the instance, 
+        # the second element of the subarray (i.e the "end") will be 1 + the position of the final character of the instance within the document.
+        # This is because a QTextCursor positions itself BETWEEN characters, so the end of the cursor's selection is between the last character of the instance and the following character
 
         layout = QGridLayout()
 
@@ -77,17 +77,11 @@ class FindReplacePopup(QDialog):
         self.setLayout(layout)
         self.exec()
 
-
-
-    """
-    Reimplementation of QWidget.closeEvent() 
     
-    When user presses the exit button, this removes highlights from the editor before closing window
-    """
+    # When user presses exit button, remove highlights before closing (Reimplementation of QWidget.closeEvent()).
     def closeEvent(self, event):
         self.__unhighlight()
         self.close()
-
 
 
     """
@@ -152,12 +146,7 @@ class FindReplacePopup(QDialog):
                     self.editor.setTextCursor(cursor) 
             
 
-
-    """
-    Removes highlighting from document. 
-    Will be called when popup is closed, when new text is entered into the find textbox (to remove leftover highlighting from previous call of __find())
-    or when text is replaced using the replaceAll() function.
-    """
+    # Removes highlighting from document that was created by __find(). 
     def __unhighlight(self):
 
         document = self.editor.document()
@@ -167,7 +156,6 @@ class FindReplacePopup(QDialog):
 
         cursor.setPosition(len(document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
         cursor.setCharFormat(defaultFmt)
-
 
 
     # Moves user's cursor to next instance  
@@ -196,7 +184,6 @@ class FindReplacePopup(QDialog):
         self.editor.setTextCursor(newCursor) 
 
 
-
     # Moves user's cursor to previous instance
     def __prevInstance(self):        
 
@@ -223,7 +210,6 @@ class FindReplacePopup(QDialog):
         self.editor.setTextCursor(newCursor) 
 
 
-    
     """
     Replace instance of found text on which the user's cursor is positioned with new text, then move user's cursor to next instance.
 
@@ -236,42 +222,38 @@ class FindReplacePopup(QDialog):
         if newText == "":
             return
 
-        # This means that the user has pressed the replace button without first finding any instances, so exit the function in this case.
+        # This means that the user has pressed the replace button without first finding any instances.
         if self.instances == []: 
             return
 
         originalAnchor = self.editor.textCursor().anchor()
         originalPos = self.editor.textCursor().position()
         
-        # Removing highlighting from instance, as after replacement it will no longer be an instance of the original search term.
+        # Removing highlighting from instance.
         defaultFmt = QTextCharFormat() 
         defaultFmt.setBackground(QColor("#0E0E10")) # Background will be reset to the background color of the editor 
         self.editor.textCursor().setCharFormat(defaultFmt)
 
         self.editor.textCursor().insertText(newText) # insertText() also deletes current selection before inserting new text
 
-        """
-        insertText() moves the user's cursor's anchor and position to the end of the insertion, 
-        so we need to reset these to their previous values in order to be able to find the user's cursor in self.instances[], 
-        which in turn is necessary for __nextInstance to work.
-        """
+        # insertText() moves the user's cursor's anchor and position to the end of the insertion, 
+        # so we need to reset these to their previous values in order to be able to find the user's cursor in self.instances[], 
+        # which in turn is necessary for __nextInstance to work.
         resetCursor = QTextCursor(self.editor.document())
         resetCursor.setPosition(originalAnchor, QTextCursor.MoveMode.MoveAnchor)
         resetCursor.setPosition(originalPos, QTextCursor.MoveMode.KeepAnchor)
         self.editor.setTextCursor(resetCursor)
 
-        """
-        ACCOUNTING FOR CHARACTER SHIFT:
-
-        By replacing the original text with new text that is of a different length to the old text, 
-        all characters that occur AFTER the replaced text are shifted, thus their positions in the document change
-        The positions are shifted by the difference in length between the new and old text.
-        Therefore it is necessary to update the positions stored in the self.instances array to account for these changes.
-
-        As lengthDifference is the length of the new text minus that of the old text, it will be negative if the old text is longer than the new text. 
-        This is not an issue, as when lengthDifference is added to the positions, if LengthDifference is negative it's absolute value will be subtracted from the positions, 
-        shifting the characters leftwards, which is the desired effect if the new text is shorter than the old text.
-        """
+        # ACCOUNTING FOR CHARACTER SHIFT:
+        #
+        # By replacing the original text with new text that is of a different length to the old text, 
+        # all characters that occur AFTER the replaced text are shifted, thus their positions in the document change
+        # The positions are shifted by the difference in length between the new and old text.
+        # Therefore it is necessary to update the positions stored in the self.instances array to account for these changes.
+        #
+        # As lengthDifference is the length of the new text minus that of the old text, it will be negative if the old text is longer than the new text. 
+        # This is not an issue, as when lengthDifference is added to the positions, if LengthDifference is negative it's absolute value will be subtracted from the positions, 
+        # shifting the characters leftwards, which is the desired effect if the new text is shorter than the old text.
         originalLength = originalPos - originalAnchor
         if originalLength != len(newText):
             lengthDifference = len(newText) - originalLength
@@ -281,9 +263,8 @@ class FindReplacePopup(QDialog):
                     i[1] = i[1] + lengthDifference
 
         self.__nextInstance()
-        self.instances.remove([originalAnchor, originalPos]) # Remove just-replaced instance from self.instances, as after replacement it no longer represents an instance of the original found text. 
+        self.instances.remove([originalAnchor, originalPos]) # Remove just-replaced instance from self.instances. 
         
-
 
     """
     Replace all instances of found text in file with new text.
@@ -297,10 +278,10 @@ class FindReplacePopup(QDialog):
         if newText == "":
             return
 
-        if self.instances == []:  # This means that the user has pressed the replace button without first finding any instances, so exit the function in this case.
+        if self.instances == []:  # This means that the user has pressed the replace button without first finding any instances.
             return
 
         for i in range(len(self.instances)):
             self.__replace(newText)
 
-        self.__unhighlight() # Remove highlighting from document now that all instances of the original text have been replaced
+        self.__unhighlight() # Remove highlighting from document now that all instances of the original text have been replaced.

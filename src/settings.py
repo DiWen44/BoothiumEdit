@@ -20,7 +20,6 @@ class SettingsPopup(QDialog):
                                 background-color: #0E0E10;
                                 font-family: Garet; """)
 
-
         self.jsonPath = os.path.join(sys.path[0], "BEditSettings.json")
 
         with open(self.jsonPath, 'r') as file:
@@ -56,7 +55,7 @@ class SettingsPopup(QDialog):
         self.exec()
 
     
-    # Reimplementation of  QWidget.closeEvent(). When user closes the popup, save their changes to the JSON file
+    # Reimplementation of QWidget.closeEvent(). When user closes the popup, save their changes to the JSON file
     def closeEvent(self, event):
 
         with open(self.jsonPath, 'w') as file:
@@ -71,7 +70,6 @@ class SettingsPopup(QDialog):
         self.close() # Close settings popup before opening JSON file.
         mainPath = os.path.join(sys.path[0], "main.py")
         os.system(f"python {mainPath} {self.jsonPath}") # Run shell command that opens editor, specifying BEditSettings.json as the file to open.
-
 
 
 
@@ -103,7 +101,7 @@ class Setting(QHBoxLayout):
         dropdown = QComboBox()
         dropdown.addItems(["On", "Off"])
         dropdown.setStyleSheet("background-color: #151821; border-style: none;")
-        dropdown.currentIndexChanged.connect(self.settingChange)
+        dropdown.currentIndexChanged.connect(self.__settingChange)
 
         # "On" is located at index 0; "Off" is at index 1.
         if enabled:
@@ -114,10 +112,11 @@ class Setting(QHBoxLayout):
         self.addWidget(dropdown)
 
 
-    def settingChange(self, index):
+    # To be called when a setting is changed
+    def __settingChange(self, index):
         
         try:
-            settings = self.parentWidget().settings # For a layout, .parentWidget returns the widget that implements the layout's parent layout, in this case SettingsPopup.
+            settings = self.parentWidget().settings # For a layout, .parentWidget() returns the widget that implements the layout's parent layout, in this case the SettingsPopup.
 
             # "On" is located at index 0; "Off" is at index 1.
             if index == 0: 

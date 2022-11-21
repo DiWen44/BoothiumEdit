@@ -30,7 +30,7 @@ class Editor(QTextEdit):
         self.setDocument(document)
 
 
-    """Reimplementation of QWidget.keyPressEvent(), to check if automatic indentation and/or automatic bracket & quotation mark closure is required after the key press"""
+    # Reimplementation of QWidget.keyPressEvent(), to check if automatic indentation and/or automatic bracket & quotation mark closure is required after a key press
     def keyPressEvent(self, event):
         
         # Loading settings file into dictionary
@@ -54,20 +54,26 @@ class Editor(QTextEdit):
             
             if event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
                 self.textCursor().insertText(']')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
             elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
                 self.textCursor().insertText(')')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
                 self.textCursor().insertText('}')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
         # Quotemark autoclosure
         if settings["autoCloseQt"]:
 
             if event.key() ==  Qt.Key.Key_Apostrophe:
                 self.textCursor().insertText('\'')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_QuoteDbl:
                 self.textCursor().insertText('"')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
-    
+            
+
 
     """
     Checks if additional indentation is required at the beginning of a new line, and indents however many times is necessary:
@@ -83,37 +89,40 @@ class Editor(QTextEdit):
 
         indentNo = 0 # Number of indents that are needed
 
-        """
-        There may be previous indents at the beginning of the line the cursor was on before "return" was pressed. 
-        The new line must be indented to the same level as the previous (and one more if the previous line ended with a colon or bracket),
-        so here we get the number of indents of the previous line.
-        """
-        prevLine = "" # String representing the previous line.
-        char = self.toPlainText()[cursorBeforeReturn.position() - 1] # The character occuring immediately before the cursor in the document
+        editorTxt = self.toPlainText()
+
+        # There may be previous indents at the beginning of the line the cursor was on before "return" was pressed. 
+        # The new line must be indented to the same level as the previous (and one more if the previous line ended with a colon or bracket),
+        # so here we get the number of indents of the previous line.
+        prevLine = "" 
+        char = editorTxt[cursorBeforeReturn.position() - 1] # The character occuring immediately before the cursor in the document
         charCount = 2 # charCount begins as 2, because char is initially the character 1 position before the cursor's position
+
         while not (char == "\n"): # Get all characters on the line by iterating backwards from cursor until a newline character is reached
+
             prevLine = prevLine + char # Appends character to line
-            char = self.toPlainText()[cursorBeforeReturn.position() - charCount]
+            char = editorTxt[cursorBeforeReturn.position() - charCount]
             charCount += 1
 
         prevLine = prevLine[::-1] # Since iteration started at the end of the line, the line string is backwards. This inverts it so the characters are in the correct order.
 
-        for i in prevLine:
+        for i in prevLine:  
             if i == "\t":
                 indentNo += 1
             else: # Any tabs on the line occuring after the first non-tab character are irrelevant, so we can end the loop.
                 break
         
-        """
-        The line may end with a colon or bracket, but there is a chance that there is whitespace after the colon/bracket and before the cursor. 
-        If so, it's still necessary to indent, so here we traverse any whitespace before the cursor to examine the character before it, and determine if it's necessary to indent.
-
-        This will still work as intended if there is no whitespace before the cursor, as the while loop just won't be executed.
-        """
-        j = self.toPlainText()[cursorBeforeReturn.position() - 1]
+        # The line may end with a colon or bracket, but there is a chance that there is whitespace after the colon/bracket and before the cursor. 
+        # If so, it's still necessary to indent, so here we traverse any whitespace before the cursor, and determine if it's necessary to indent based on the character at the other end of the whitespace.
+        # This will still work as intended if there is no whitespace before the cursor, as the while loop just won't be executed.
+        j = editorTxt[cursorBeforeReturn.position() - 1]
         jCount = 2  
-        while j.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered             
-            j = self.toPlainText()[cursorBeforeReturn.position() - jCount]
+        while j.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered           
+
+            if j == "\n": # Exit loop if newline character is encountered before any non-whitespace characters; We don't need to add an indent in this siuation
+                break
+
+            j = editorTxt[cursorBeforeReturn.position() - jCount]
             jCount += 1
             
         if (j in brackets) or (j == ":"): # Indent if character is colon or a bracket

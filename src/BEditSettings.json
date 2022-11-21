@@ -1,8 +1,1 @@
-{
-"autoCloseBrckt": true, 
-"autoCloseQt": true, 
-"autoIndent": true, 
-"autosave": true, 
-"brcktPairHighlight": true,
-"syntaxHighlight": true
-}
+{"autoCloseBrckt": true, "autoCloseQt": true, "autoIndent": true, "autosave": true, "brcktPairHighlight": true, "syntaxHighlight": true}
