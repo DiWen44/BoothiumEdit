@@ -1,6 +1,0 @@
-This is a list of hexadecimal values of all colors used in the editor, and where they occur.
-
-#404040 - Greyish color used in the menubar.
-#0E0E10 - Shade of black used in the brackground of the editor.
-#151821 - Blueish-black used in buttons on the find & settings popups.
-#40d4db - Light blue used in find function's highlighting.
