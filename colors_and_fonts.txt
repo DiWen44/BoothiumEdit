@@ -4,3 +4,10 @@ This is a list of hexadecimal values of all colors used in the editor, and where
 #0E0E10 - Shade of black used in the background of the editor.
 #151821 - Blueish-black used in buttons on the find & settings popups.
 #40d4db - Light blue used in find function's highlighting.
+
+
+This is a list of all fonts used in the program, and where they occur
+
+Consolas (monospace) - Used in the editor code box (will apply on Windows)
+Menlo (monospace) - Used in the editor code box (will apply on MacOS)
+Garet - Used in all areas not within the editor code box.
