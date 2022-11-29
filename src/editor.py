@@ -24,7 +24,7 @@ class Editor(QTextEdit):
         self.setStyleSheet("""color: white; 
                                 background-color: #0E0E10; 
                                 border-style: none; 
-                                font-family: Consolas, "Courier New",  monospace; 
+                                font-family: Consolas, Menlo,  monospace; 
                                 font-size: 13pt;""")
         document = QTextDocument(fileText)
         self.setDocument(document)
