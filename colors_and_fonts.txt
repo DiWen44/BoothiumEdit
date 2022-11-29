@@ -1,4 +1,4 @@
-This is a list of hexadecimal values of all colors used in the editor, and where they occur.
+This is a list of hexadecimal values of all colors used in the program, and where they occur:
 
 #404040 - Greyish color used in the menubar.
 #0E0E10 - Shade of black used in the background of the editor.
@@ -6,8 +6,8 @@ This is a list of hexadecimal values of all colors used in the editor, and where
 #40d4db - Light blue used in find function's highlighting.
 
 
-This is a list of all fonts used in the program, and where they occur
+This is a list of all fonts used in the program, and where they occur:
 
-Consolas (monospace) - Used in the editor code box (will apply on Windows)
-Menlo (monospace) - Used in the editor code box (will apply on MacOS)
+Consolas (monospace) - Used in the editor code box (will apply only on Windows, as it is not supported on other OSs)
+Menlo (monospace) - Used in the editor code box (will apply only on MacOS, as it is not supported on other OSs)
 Garet - Used in all areas not within the editor code box.
