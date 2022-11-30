@@ -4,6 +4,7 @@ import json
 import os
 import sys
 
+from main import MainWindow
 
 
 # Represents the settings popup that shows when the user clicks the "settings" option in the main window's menubar
@@ -23,7 +24,9 @@ class SettingsPopup(QDialog):
         self.jsonPath = os.path.join(sys.path[0], "BEditSettings.json")
 
         with open(self.jsonPath, 'r') as file:
-            self.settings = json.load(file)
+            self.settings = json.load(file) 
+            # self.settings serves as a file buffer. 
+            # When settings are changed, they are saved here first, then this is dumped into the file when the user closes the popup.
 
         layout = QVBoxLayout()
         

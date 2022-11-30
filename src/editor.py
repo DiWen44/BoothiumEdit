@@ -54,25 +54,22 @@ class Editor(QTextEdit):
             
             if event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
                 self.textCursor().insertText(']')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
             elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
                 self.textCursor().insertText(')')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
                 self.textCursor().insertText('}')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
+
+            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
 
         # Quotemark autoclosure
         if settings["autoCloseQt"]:
 
             if event.key() ==  Qt.Key.Key_Apostrophe:
                 self.textCursor().insertText('\'')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_QuoteDbl:
                 self.textCursor().insertText('"')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
-            
+            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)            
 
 
     """
@@ -87,7 +84,7 @@ class Editor(QTextEdit):
 
         brackets = ['[', '(', '{']  
 
-        indentNo = 0 # Number of indents that are needed
+        indentsNeeded = 0 # Number of indents that are needed
 
         editorTxt = self.toPlainText()
 
@@ -108,7 +105,7 @@ class Editor(QTextEdit):
 
         for i in prevLine:  
             if i == "\t":
-                indentNo += 1
+                indentsNeeded += 1
             else: # Any tabs on the line occuring after the first non-tab character are irrelevant, so we can end the loop.
                 break
         
@@ -119,16 +116,16 @@ class Editor(QTextEdit):
         jCount = 2  
         while j.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered           
 
-            if j == "\n": # Exit loop if newline character is encountered before any non-whitespace characters; We don't need to add an indent in this siuation
+            if j == "\n": # Exit loop if newline character is encountered before any non-whitespace characters. We don't need to add an indent in this siuation
                 break
 
             j = editorTxt[cursorBeforeReturn.position() - jCount]
             jCount += 1
             
         if (j in brackets) or (j == ":"): # Indent if character is colon or a bracket
-            indentNo += 1
+            indentsNeeded += 1
 
-        for indent in range(indentNo):
+        for indent in range(indentsNeeded):
             self.textCursor().insertText('\t')
 
 
