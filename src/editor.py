@@ -30,7 +30,10 @@ class Editor(QTextEdit):
         self.setDocument(document)
 
 
-    # Reimplementation of QWidget.keyPressEvent(), to check if automatic indentation and/or automatic bracket & quotation mark closure is required after a key press
+    """
+    Reimplementation of QWidget.keyPressEvent() signal, 
+    to check if automatic indentation and/or automatic bracket & quotation mark closure is required after a key press.
+    """
     def keyPressEvent(self, event):
         
         # Loading settings file into dictionary
@@ -54,25 +57,46 @@ class Editor(QTextEdit):
             
             if event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
                 self.textCursor().insertText(']')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
             elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
                 self.textCursor().insertText(')')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
                 self.textCursor().insertText('}')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
+
+            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
 
         # Quotemark autoclosure
         if settings["autoCloseQt"]:
 
             if event.key() ==  Qt.Key.Key_Apostrophe:
                 self.textCursor().insertText('\'')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_QuoteDbl:
                 self.textCursor().insertText('"')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
+            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
+
+
+    """
+    Reimplementation of QWidget.cursorPositionChanged() signal, 
+    to check if the cursor has been moved adjacent to a bracket, and if so highlight the bracket pair.
+    """
+    def cursorPositionChanged(self):
+
+        brackets = ['[', ']', '{', '}', '(', ')']  
+
+        super().cursorPositionChanged()  # Do as normal first
+
+        text = self.toPlainText()
+        cursor = self.textCursor()
+
+        posBefore = cursor.position()
+        posAfter = cursor.position() + 1
+
+        if text[posBefore] in brackets:
             
+            self.__getPartnerBrckt(posBefore)
+
+        if text[posAfter] in brackets:
+            self.__getPartnerBrckt(posAfter)
 
 
     """
@@ -132,3 +156,20 @@ class Editor(QTextEdit):
             self.textCursor().insertText('\t')
 
 
+    """
+    Given the position of a bracket, finds and returns the position of the other bracket in the pair.
+
+    PARAMETERS:
+        brcktPos - The position in the document of the known bracket in the pair.
+    """
+    def __getPartnerBrckt(self, brcktPos):
+        
+        openingBrckts = ['(', '{', '[']
+        closingBrckts = [')', '}', ']']
+
+        text = self.toPlainText()
+        brcktChar = text[brcktPos]
+
+        if brcktChar in openingBrckts:
+            
+        elif brcktChar in closingBrckts:
