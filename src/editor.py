@@ -30,7 +30,10 @@ class Editor(QTextEdit):
         self.setDocument(document)
 
 
-    # Reimplementation of QWidget.keyPressEvent(), to check if automatic indentation and/or automatic bracket & quotation mark closure is required after a key press
+    """
+    Reimplementation of QWidget.keyPressEvent() signal, 
+    to check if automatic indentation and/or automatic bracket & quotation mark closure is required after a key press.
+    """
     def keyPressEvent(self, event):
         
         # Loading settings file into dictionary
@@ -69,7 +72,7 @@ class Editor(QTextEdit):
             elif event.key() ==  Qt.Key.Key_QuoteDbl:
                 self.textCursor().insertText('"')
 
-            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)            
+            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
 
     """
@@ -111,18 +114,18 @@ class Editor(QTextEdit):
         
         # The line may end with a colon or bracket, but there is a chance that there is whitespace after the colon/bracket and before the cursor. 
         # If so, it's still necessary to indent, so here we traverse any whitespace before the cursor, and determine if it's necessary to indent based on the character at the other end of the whitespace.
-        # This will still work as intended if there is no whitespace before the cursor, as the while loop just won't be executed.
-        j = editorTxt[cursorBeforeReturn.position() - 1]
-        jCount = 2  
-        while j.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered           
+        # This will still work as intended if there is no whitespace before the cursor, as the loop just won't be executed.
+        char = editorTxt[cursorBeforeReturn.position() - 1]
+        charCount = 2  
+        while char.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered           
 
-            if j == "\n": # Exit loop if newline character is encountered before any non-whitespace characters. We don't need to add an indent in this siuation
+            if char == "\n": # Exit loop if newline character is encountered before any non-whitespace characters. We don't need to add an indent in this siuation
                 break
 
-            j = editorTxt[cursorBeforeReturn.position() - jCount]
-            jCount += 1
+            char = editorTxt[cursorBeforeReturn.position() - charCount]
+            charCount += 1
             
-        if (j in brackets) or (j == ":"): # Indent if character is colon or a bracket
+        if (char in brackets) or (char == ":"): # Indent if character is colon or a bracket
             indentsNeeded += 1
 
         for indent in range(indentsNeeded):

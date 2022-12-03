@@ -4,8 +4,6 @@ import json
 import os
 import sys
 
-from main import MainWindow
-
 
 # Represents the settings popup that shows when the user clicks the "settings" option in the main window's menubar
 class SettingsPopup(QDialog):
