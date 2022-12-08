@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QApplication, QTextEdit, QMainWindow, QMenuBar, QMenu, QMessageBox, QPushButton
-from PyQt6.QtGui import QAction, QKeySequence, QTextDocument
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton
+from PyQt6.QtGui import QAction, QKeySequence
 
 import sys
 import platform

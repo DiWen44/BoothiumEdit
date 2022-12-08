@@ -5,7 +5,7 @@ import os
 import sys
 
 
-# Represents the settings popup that shows when the user clicks the "settings" option in the main window's menubar
+"""Represents the settings popup that shows when the user clicks the "settings" option in the main window's menubar"""
 class SettingsPopup(QDialog):
 
     
@@ -36,12 +36,6 @@ class SettingsPopup(QDialog):
 
         AutoIndent = Setting("Auto Indent", "autoIndent", self.settings["autoIndent"])
         layout.addLayout(AutoIndent)
-
-        autosave = Setting("Autosave", "autosave", self.settings["autosave"])
-        layout.addLayout(autosave)
-
-        brcktPairHighlight = Setting("Bracket Pair Highlighting", "brcktPairHighlight", self.settings["brcktPairHighlight"])
-        layout.addLayout(brcktPairHighlight)
 
         syntaxHighlight = Setting("Syntax Highlighting", "syntaxHighlight", self.settings["syntaxHighlight"])
         layout.addLayout(syntaxHighlight)

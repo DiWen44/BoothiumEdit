@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QDialog, QLineEdit, QPushButton, QGridLayout, QMessageBox, QTextEdit
-from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
+from PyQt6.QtGui import QTextCursor, QTextCharFormat, QColor
 
 
 
@@ -7,7 +7,7 @@ from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 Represents the popup containing the find & replace functionality
 
 CONSTRUCTOR PARAMETERS:
-    editor - The QTextEditor representing the code editor textbox.
+    editor - The QPlainTextEdit representing the code editor textbox.
 """
 class FindReplacePopup(QDialog):
 

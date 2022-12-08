@@ -1,10 +1,12 @@
-from PyQt6.QtWidgets import QTextEdit
+from PyQt6.QtWidgets import QPlainTextEdit, QPlainTextDocumentLayout
 from PyQt6.QtGui import QTextDocument, QTextCursor
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRect
 
 import json
 import os
 import sys
+
+from lineNumberArea import LineNumberArea
 
 
 
@@ -14,7 +16,7 @@ Represents the code editor textbox.
 CONSTRUCTOR PARAMETERS:
     fileText - The text of the file to open.
 """
-class Editor(QTextEdit):
+class Editor(QPlainTextEdit):
 
 
     def __init__(self, fileText):
@@ -26,8 +28,28 @@ class Editor(QTextEdit):
                                 border-style: none; 
                                 font-family: Consolas, Menlo,  monospace; 
                                 font-size: 13pt;""")
+
         document = QTextDocument(fileText)
+        plainTextLayout = QPlainTextDocumentLayout(document) # Document being edited in QPlainTextEdit must have a QPlainTextDocumentLayout.
+        document.setDocumentLayout(plainTextLayout)
         self.setDocument(document)
+
+        self.lineNumberArea = LineNumberArea(self)
+        self.blockCountChanged.connect(self.lineNumberArea.updateWidth) # Line numbers need to be revised when new lines are added or removed
+        self.updateRequest.connect(self.lineNumberArea.updateRect) # When editor is scrolled, the line number section needs to be scrolled too.
+        self.lineNumberArea.updateWidth()
+
+
+    """
+    Reimplemenation of Qwidget.resizeEvent. 
+    When the editor is resized, this resizes the line number space proportionally.
+    """
+    def resizeEvent(self, event):
+
+        super().resizeEvent(event)
+
+        cr = self.contentsRect()
+        self.lineNumberArea.setGeometry(QRect(cr.left(), cr.top(), self.lineNumberArea.getWidth(), cr.height()))
 
 
     """
@@ -36,7 +58,7 @@ class Editor(QTextEdit):
     """
     def keyPressEvent(self, event):
         
-        # Loading settings file into dictionary
+        # Loading settings file into a dictionary
         sFilePath = os.path.join(sys.path[0], "BEditSettings.json")
         with open(sFilePath, 'r+') as file:
             settings = json.load(file)
@@ -57,22 +79,23 @@ class Editor(QTextEdit):
             
             if event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
                 self.textCursor().insertText(']')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
             elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
                 self.textCursor().insertText(')')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
             elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
                 self.textCursor().insertText('}')
-
-            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
 
         # Quotemark autoclosure
         if settings["autoCloseQt"]:
 
             if event.key() ==  Qt.Key.Key_Apostrophe:
                 self.textCursor().insertText('\'')
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_QuoteDbl:
                 self.textCursor().insertText('"')
-
-            self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
 
     """
@@ -130,5 +153,3 @@ class Editor(QTextEdit):
 
         for indent in range(indentsNeeded):
             self.textCursor().insertText('\t')
-
-
