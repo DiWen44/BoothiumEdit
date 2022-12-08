@@ -24,15 +24,17 @@ class Editor(QPlainTextEdit):
         super().__init__()
 
         self.setStyleSheet("""color: white; 
-                                background-color: #0E0E10; 
+                                background-color: #171c2b; 
                                 border-style: none; 
-                                font-family: Consolas, Menlo,  monospace; 
+                                font-family: Consolas, Menlo, monospace; 
                                 font-size: 13pt;""")
 
         document = QTextDocument(fileText)
         plainTextLayout = QPlainTextDocumentLayout(document) # Document being edited in QPlainTextEdit must have a QPlainTextDocumentLayout.
         document.setDocumentLayout(plainTextLayout)
         self.setDocument(document)
+
+        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
 
         self.lineNumberArea = LineNumberArea(self)
         self.blockCountChanged.connect(self.lineNumberArea.updateWidth) # Line numbers need to be revised when new lines are added or removed

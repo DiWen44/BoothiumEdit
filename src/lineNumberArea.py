@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtGui import QPainter, QFontMetrics
+from PyQt6.QtGui import QPainter, QFontMetrics, QColor
 from PyQt6.QtCore import Qt
 
 
@@ -25,7 +25,7 @@ class LineNumberArea(QWidget):
         linesNo = self.editor.blockCount()
         digitsNo = len(str(linesNo))  
         charWidth = QFontMetrics(self.font()).maxWidth() # Width of 1 individual character in the editor's font.
-        return (digitsNo * charWidth) 
+        return ((digitsNo + 1) * charWidth) 
 
 
     """
@@ -64,7 +64,7 @@ class LineNumberArea(QWidget):
 
         # Paint widget brackground
         painter = QPainter(self)
-        painter.fillRect(event.rect(), Qt.GlobalColor.lightGray)
+        painter.fillRect(event.rect(), QColor(20, 32, 51))
 
         line = self.editor.firstVisibleBlock()
         lineNo = line.blockNumber()
@@ -79,8 +79,8 @@ class LineNumberArea(QWidget):
 
             if line.isVisible() and (bottom >= event.rect().top()):
                 # Write line number text
-                number = str(lineNo + 1)
-                painter.setPen(Qt.GlobalColor.black)
+                number = "~ " + str(lineNo + 1) + " "
+                painter.setPen(Qt.GlobalColor.white)
                 painter.drawText(0, top, self.width(), height, Qt.AlignmentFlag.AlignRight, number)
 
             line = line.next()
