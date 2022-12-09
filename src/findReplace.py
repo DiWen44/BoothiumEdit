@@ -148,7 +148,7 @@ class FindReplacePopup(QDialog):
     def __unhighlight(self):
 
         defaultFmt = QTextCharFormat() 
-        defaultFmt.setBackground(QColor("#0E0E10")) # Background will be reset to the background color of the editor 
+        defaultFmt.setBackground(QColor("#171c2b")) # Background will be reset to the background color of the editor 
         cursor = QTextCursor(self.document)
 
         cursor.setPosition(len(self.document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
@@ -213,7 +213,7 @@ class FindReplacePopup(QDialog):
 
         # Removing highlighting from instance.
         defaultFmt = QTextCharFormat() 
-        defaultFmt.setBackground(QColor("#0E0E10")) # Background will be reset to the background color of the editor 
+        defaultFmt.setBackground(QColor("#171c2b")) # Background will be reset to the background color of the editor 
         cursorForInstance.setCharFormat(defaultFmt)
 
         self.__nextInstance()

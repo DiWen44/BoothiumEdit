@@ -64,7 +64,7 @@ class LineNumberArea(QWidget):
 
         # Paint widget brackground
         painter = QPainter(self)
-        painter.fillRect(event.rect(), QColor(20, 32, 51))
+        painter.fillRect(event.rect(), QColor("#142033"))
 
         line = self.editor.firstVisibleBlock()
         lineNo = line.blockNumber()
@@ -80,7 +80,7 @@ class LineNumberArea(QWidget):
             if line.isVisible() and (bottom >= event.rect().top()):
                 # Write line number text
                 number = "~ " + str(lineNo + 1) + " "
-                painter.setPen(QColor(102, 102, 102))
+                painter.setPen(QColor("#666666"))
                 painter.drawText(0, top, self.width(), height, Qt.AlignmentFlag.AlignRight, number)
 
             line = line.next()
