@@ -84,10 +84,10 @@ class Editor(QPlainTextEdit):
                 self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
             elif event.key() ==  Qt.Key.Key_ParenLeft: # Round bracket/Parentheses
                 self.textCursor().insertText(')')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
             elif event.key() ==  Qt.Key.Key_BraceLeft: # Curly bracket/Brace
                 self.textCursor().insertText('}')
-                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter) # Move cursor to previous position so that it is between brackets
+                self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
         # Quotemark autoclosure
         if settings["autoCloseQt"]:

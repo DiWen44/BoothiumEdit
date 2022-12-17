@@ -19,21 +19,22 @@ class LineNumberArea(QWidget):
 
 
     """
-    Returns the width of the LineNumberArea.
+    Returns the width of the LineNumberArea. 
+    If the width of the lineNumberArea needs to be changed (as a result of the new number of the bottom line having more digits, and thus needing more width), this returns the calculated new width.
     """
     def getWidth(self):
         linesNo = self.editor.blockCount()
-        digitsNo = len(str(linesNo))  
+        digitsNo = len(str(linesNo)) # Number of digits in line number of bottom line
         charWidth = QFontMetrics(self.font()).maxWidth() # Width of 1 individual character in the editor's font.
         return ((digitsNo + 1) * charWidth) 
 
 
     """
     This is called by event from the editor class (via the blockCountChanged() signal), whenever new lines are created or removed in the editor.
-    Sets a margin around the editor which the lineNumberArea will occupy.
+    Sets a margin on the left-hand side of the editor which the lineNumberArea will occupy.
     """
     def updateWidth(self):
-        self.editor.setViewportMargins(self.getWidth(), 0, 0, 0)
+        self.editor.setViewportMargins(self.getWidth(), 0, 0, 0) 
 
 
     """
@@ -57,12 +58,12 @@ class LineNumberArea(QWidget):
 
 
     """
-    Reimplemenation of Qwidget.paintEvent. Allows us to paint the LineNumberArea.
+    Reimplemenation of Qwidget.paintEvent(). Allows us to paint the LineNumberArea.
     This is called automatically on initialization, and when any change to the editor occurs.
     """
     def paintEvent(self, event):
 
-        # Paint widget brackground
+        # Paint widget background
         painter = QPainter(self)
         painter.fillRect(event.rect(), QColor("#142033"))
 
@@ -74,7 +75,7 @@ class LineNumberArea(QWidget):
         top = round(self.editor.blockBoundingGeometry(line).translated(self.editor.contentOffset()).top())
         bottom = top + round(self.editor.blockBoundingRect(line).height())
 
-         # Iterate over all lines
+        # Iterate over all lines
         while line.isValid() and (top <= event.rect().bottom()):
 
             if line.isVisible() and (bottom >= event.rect().top()):

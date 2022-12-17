@@ -82,7 +82,9 @@ class MainWindow(QMainWindow):
         editMenu.addAction(findAct)
 
 
-    # Reimplementation of QWidget.closeEvent(). Prompts user to save if text in editor is discrepant from text in file 
+    """
+    Reimplementation of QWidget.closeEvent(). Prompts user to save if text in editor is discrepant from text in file.
+    """
     def closeEvent(self, event):
 
         editorText = self.centralWidget().toPlainText()

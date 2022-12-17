@@ -75,7 +75,10 @@ class FindReplacePopup(QDialog):
         self.exec()
 
     
-    # When user presses exit button, remove highlights before closing (Reimplementation of QWidget.closeEvent()).
+    """
+    Reimplementation of QWidget.closeEvent()
+    When user presses exit button, remove highlights before closing. 
+    """
     def closeEvent(self, event):
         self.__unhighlight()
         self.close()
@@ -144,7 +147,9 @@ class FindReplacePopup(QDialog):
             self.editor.setTextCursor(self.instances[0]) # Have user's cursor select first instance
         
 
-    # Removes highlighting from document that was created by __find(). 
+    """
+    Removes highlighting from document that was created by __find(). 
+    """
     def __unhighlight(self):
 
         defaultFmt = QTextCharFormat() 
@@ -155,7 +160,9 @@ class FindReplacePopup(QDialog):
         cursor.setCharFormat(defaultFmt)
 
 
-    # Moves user's cursor to next instance  
+    """
+    Moves user's cursor to next instance. 
+    """
     def __nextInstance(self):
 
         if len(self.instances) <= 1: # There is no next instance if there is only 1 instance, so exit the function in that case. If there are no instances, the user pressed the button without any instances having been found.
@@ -176,7 +183,9 @@ class FindReplacePopup(QDialog):
         self.editor.setTextCursor(newCursor) 
 
 
-    # Moves user's cursor to previous instance
+    """
+    Moves user's cursor to previous instance.
+    """
     def __prevInstance(self):        
 
         if len(self.instances) <= 1: # There is no previous instance if there is only 1 instance, so exit the function in that case. If there are no instances, the user pressed the button without any instances having been found.
