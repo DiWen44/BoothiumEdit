@@ -1,1 +1,18 @@
-{"autoCloseBrckt": true, "autoCloseQt": true, "autoIndent": true, "syntaxHighlight": true}
+{
+	"autoCloseBrckt": true, 
+	"autoCloseQt": true, 
+	"autoIndent": true, 
+	"syntaxHighlight": true,
+	"colorScheme": {
+		"TokenType.COMMENT": "#a69a5a",
+		"TokenType.NUMBER": "#e69c3c",
+		"TokenType.STRING": "#609e7b",
+		"TokenType.KEYWORD": "#8751a6",
+		"TokenType.OPERATOR": "#a34040",
+		"TokenType.DOUBLE_CHAR_OPERATOR": "#a34040", 
+		"TokenType.DELIM": "#ffffff",
+		"TokenType.WHITESPACE": "#ffffff",
+		"TokenType.IDENTIFIER": "#ffffff",
+		"TokenType.UNKNOWN": "#ffffff"
+	}
+}

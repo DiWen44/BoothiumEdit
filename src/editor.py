@@ -1,13 +1,14 @@
 from PyQt6.QtWidgets import QPlainTextEdit, QPlainTextDocumentLayout
-from PyQt6.QtGui import QTextDocument, QTextCursor
+from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 from PyQt6.QtCore import Qt, QRect
 
 import json
 import os
 import sys
+import re
 
 from lineNumberArea import LineNumberArea
-
+from highlighter import Highlighter
 
 
 """
@@ -41,10 +42,18 @@ class Editor(QPlainTextEdit):
         self.updateRequest.connect(self.lineNumberArea.updateRect) # When editor is scrolled, the line number section needs to be scrolled too.
         self.lineNumberArea.updateWidth()
 
+        # Loading settings file into a dictionary
+        sFilePath = os.path.join(sys.path[0], "BEditSettings.json")
+        with open(sFilePath, 'r+') as file:
+            self.settings = json.load(file)
+
+        self.highlighter = Highlighter(self)
+        self.highlighter.highlightAll()
+
 
     """
     Reimplemenation of Qwidget.resizeEvent. 
-    When the editor is resized, this resizes the line number space proportionally.
+    When the editor is resized, this resizes the LineNumberArea proportionally.
     """
     def resizeEvent(self, event):
 
@@ -55,29 +64,24 @@ class Editor(QPlainTextEdit):
 
 
     """
-    Reimplementation of QWidget.keyPressEvent() signal, 
+    Reimplementation of QWidget.keyPressEvent() signal, to perform syntax highlighting and
     to check if automatic indentation and/or automatic bracket & quotation mark closure is required after a key press.
     """
     def keyPressEvent(self, event):
-        
-        # Loading settings file into a dictionary
-        sFilePath = os.path.join(sys.path[0], "BEditSettings.json")
-        with open(sFilePath, 'r+') as file:
-            settings = json.load(file)
 
         originalCursorPos = self.textCursor().position() # Cursor's position before "super().keyPressEvent(event)" is called
 
         super().keyPressEvent(event)  # Do as normal first
 
         # Automatic indentation
-        if (event.key() ==  Qt.Key.Key_Return) and settings["autoIndent"]:
+        if (event.key() ==  Qt.Key.Key_Return) and self.settings["autoIndent"]:
             # Create cursor that represents the user's cursor before "return" was pressed
             originalCursor = QTextCursor(self.document())
             originalCursor.setPosition(originalCursorPos) 
             self.__autoIndent(originalCursor)
 
         # Bracket autoclosure
-        if settings["autoCloseBrckt"]:    
+        if self.settings["autoCloseBrckt"]:    
             
             if event.key() ==  Qt.Key.Key_BracketLeft: # Square bracket/Bracket
                 self.textCursor().insertText(']')
@@ -90,7 +94,7 @@ class Editor(QPlainTextEdit):
                 self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
         # Quotemark autoclosure
-        if settings["autoCloseQt"]:
+        if self.settings["autoCloseQt"]:
 
             if event.key() ==  Qt.Key.Key_Apostrophe:
                 self.textCursor().insertText('\'')
@@ -98,6 +102,10 @@ class Editor(QPlainTextEdit):
             elif event.key() ==  Qt.Key.Key_QuoteDbl:
                 self.textCursor().insertText('"')
                 self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
+
+        # Syntax highlighting
+        if self.settings["syntaxHighlight"]:
+            self.highlighter.highlightLine()
 
 
     """
@@ -121,10 +129,10 @@ class Editor(QPlainTextEdit):
         # so here we get the number of indents of the previous line.
         prevLine = "" 
         char = editorTxt[cursorBeforeReturn.position() - 1] # The character occuring immediately before the cursor in the document
+        
         charCount = 2 # charCount begins as 2, because char is initially the character 1 position before the cursor's position
-
-        while not (char == "\n"): # Get all characters on the line by iterating backwards from cursor until a newline character is reached
-
+        while char != "\n": # Get all characters on the line by iterating backwards from cursor until a newline character is reached
+ 
             prevLine = prevLine + char # Appends character to line
             char = editorTxt[cursorBeforeReturn.position() - charCount]
             charCount += 1
