@@ -1,18 +1,121 @@
 {
 	"autoCloseBrckt": true, 
+
 	"autoCloseQt": true, 
+
 	"autoIndent": true, 
+
 	"syntaxHighlight": true,
-	"colorScheme": {
-		"TokenType.COMMENT": "#a69a5a",
-		"TokenType.NUMBER": "#e69c3c",
-		"TokenType.STRING": "#609e7b",
-		"TokenType.KEYWORD": "#8751a6",
-		"TokenType.OPERATOR": "#a34040",
-		"TokenType.DOUBLE_CHAR_OPERATOR": "#a34040", 
-		"TokenType.DELIM": "#ffffff",
-		"TokenType.WHITESPACE": "#ffffff",
-		"TokenType.IDENTIFIER": "#ffffff",
-		"TokenType.UNKNOWN": "#ffffff"
+
+
+	"syntaxHighlighting":{
+
+		"colorScheme": {
+			"comment": "#a69a5a",
+			"number": "#e69c3c",
+			"dbl_quote_string": "#609e7b",
+			"single_quote_string": "#609e7b",
+			"keyword": "#8751a6",
+			"operator": "#a34040",
+			"dbl_char_operator": "#a34040", 
+			"delimiter": "#ffffff",
+			"whitespace": "#ffffff",
+			"identifier": "#ffffff",
+			"function": "#5693a6", 
+			"unknown": "#ffffff"
+		},
+
+		"languages": [
+
+			{
+				"name": "python",
+				"keywords" : ["False", "await",	"else", "import", "pass",
+								"None", "break", "except", "in", "raise",
+								"True", "class", "finally", "is", "return",
+								"and", "continue", "for", "lambda",
+								"as", "def", "from", "nonlocal", "try",
+								"assert", "del", "global", "not", "while",
+								"async", "elif", "if"	, "or", "with",
+								"yield"]		
+			},
+
+			{
+				"name": "c",
+				"keywords" : ["auto", "break", "case", "char",
+								"const", "continue", "default",	"do",
+								"double", "else", "enum", "extern",
+								"float", "for",	"goto",	"if",
+								"int", "long", "register",	"return",
+								"short", "signed",	"sizeof", "static",
+								"struct", "switch",	"typedef", "union",
+								"unsigned", "void", "volatile", "while"]
+			},
+
+			{
+				"name": "c++",
+				"keywords" : ["asm", "double", "new", "switch",
+								"auto", "else", "operator", "template",
+								"break", "enum", "private", "this",
+								"case", "extern", "protected", "throw",
+								"catch", "float", "public", "try",
+								"char", "for", "register", "typedef",
+								"class", "friend", "return", "union",
+								"const", "goto", "short", "unsigned",
+								"continue", "if", "signed", "virtual",
+								"default", "inline", "sizeof", "void",
+								"delete", "int", "static", "volatile ",
+								"do", "long", "struct", "while"]
+				
+			},
+
+			{
+				"name": "javascript",
+				"keywords" : ["abstract", "arguments", "await", "boolean",
+								"break", "byte", "case", "catch",
+								"char", "class", "const", "continue",
+								"debugger", "default", "delete", "do",
+								"double", "else", "enum", "eval",
+								"export", "extends", "false", "final",
+								"finally", "float", "for", "function",
+								"goto", "if", "implements", "import",
+								"in", "instanceof", "int", "interface",
+								"let", "long", "native", "new",
+								"null", "package", "private", "protected",
+								"public", "return", "short", "static",
+								"super", "switch", "synchronized",
+								"throw", "throws", "transient", "true",
+								"try", "typeof", "var", "void",
+								"volatile", "while", "with", "yield"]
+				
+			},
+
+			{
+				"name": "java",
+				"keywords" : ["abstract", "continue", "for", "new", "switch",
+								"assert", "default", "goto", "package", "synchronized",
+								"boolean", "do", "if", "private",
+								"break", "double", "implements", "protected", "throw",
+								"byte", "else", "import", "public",	"throws",
+								"case", "enum", "instanceof", "return",	"transient",
+								"catch", "extends", "int", "short",	"try",
+								"char", "final", "interface", "static",	"void",
+								"class", "finally", "long",	"strictfp",	"volatile",
+								"const", "float", "native", "super", "while"]
+
+			},
+
+			{
+				"name": "go",
+				"keywords" : ["const", "chan", "break", 
+								"defer", "var", "interface", 
+								"case", "go", "func", "map", 
+								"continue", "type", "struct", "default", 
+								"import", "else", "package", 
+								"fallthrough", "for", "goto", "if", 
+								"range", "return", "select", "switch"]
+				
+			}
+
+		]
 	}
 }

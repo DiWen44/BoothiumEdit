@@ -5,7 +5,13 @@ import os
 import sys
 
 
-"""Represents the settings popup that shows when the user clicks the "settings" option in the main window's menubar"""
+"""
+Represents the settings popup that shows when the user clicks the "settings" option in the main window's menubar.
+
+ATTRIBUTES:
+    settings - Dictionary containing the settings loaded from BEditSettings.json.
+    jsonPath - full file path of BEditSettings.json.
+"""
 class SettingsPopup(QDialog):
 
     
@@ -78,7 +84,12 @@ CONSTRUCTOR PARAMETERS:
     jsonName - The name of the setting in the BEditSettings.json file and thus also in the SettingsPopup.settings dictionary 
                 e.g Bracket Pair Highlighting's jsonName is "brcktPairHighlight".
     enabled - Boolean indicating if the setting is on or off (True if on, False if off). 
-                When the constructor is called in the SettingsPopup, this is to be ascertained through getting the value of the setting in the SettingsPopup.settings dictionary  
+                When the constructor is called in the SettingsPopup, this is to be ascertained through getting the boolean value of the setting in the SettingsPopup.settings dictionary  
+
+ATTRIBUTES:
+    title - The displayed name of the setting
+    jsonName - The name of the setting in the BEditSettings.json file and thus also in the SettingsPopup.settings dictionary 
+                e.g Bracket Pair Highlighting's jsonName is "brcktPairHighlight".
 """
 class Setting(QHBoxLayout):
 

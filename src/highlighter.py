@@ -2,37 +2,21 @@ from PyQt6.QtWidgets import QPlainTextEdit
 from PyQt6.QtGui import QTextDocument, QTextCursor, QTextCharFormat, QColor
 
 import re
-from enum import Enum
 import json
 import os
 import sys
 
 
 """
-Contains all the possible types of token.
-"""
-class TokenType(Enum):
-
-	COMMENT = 1
-	NUMBER = 2
-	STRING = 3
-
-	OPERATOR = 4
-	DOUBLE_CHAR_OPERATOR = 5
-
-	DELIM = 6
-
-	WHITESPACE = 7
-	IDENTIFIER = 8
-
-	UNKNOWN = 9
-
-
-"""
-Class representing the syntax highlighter itself, containing appropriate highlighting methods
+Class representing the syntax highlighter, containing appropriate highlighting methods
 
 CONSTRUCTOR PARAMETERS:
     editor - The QPlainTextEdit representing the code editor textbox.
+
+ATTRIBUTES:
+	editor - The QPlainTextEdit representing the code editor textbox.
+	colorScheme - Dictionary mapping a type of lexical token to the hex color value that tokens of that type are to be highlighted.
+	rules - Dictionary mapping a token type to a regular expression that recognizes text of that token type.
 """
 class Highlighter():
 
@@ -41,28 +25,60 @@ class Highlighter():
 
 		self.editor = editor
 
-		# Loading highlighting color scheme from settings file into a dictionary
+		# Loading color scheme & language keywords from settings file.
 		sFilePath = os.path.join(sys.path[0], "BEditSettings.json")
-		with open(sFilePath, 'r+') as file:																																		
-			self.colorScheme = (json.load(file))["colorScheme"]
+		with open(sFilePath, 'r+') as file:
 
+			highlightingSettings = json.load(file)["syntaxHighlighting"]
+			self.colorScheme = highlightingSettings["colorScheme"]
+
+			for i in highlightingSettings["languages"]:
+				if i["name"] == editor.language:
+					keywords = i["keywords"]
+
+		# Accounts for comments in python being denoted by '#' rather than '//'.
+		if editor.language == "python":
+			commentRegex = "^(#.*)"
+		else:
+			commentRegex = "^(//.*)"
+
+	    # Generate regular expression for keywords.
+	    # The resulting regex should look something like this: "^(KEYWORD|KEYWORD|KEYWORD|KEYWORD)$", where "KEYWORD" is replaced with an actual keyword.
+		keywordRegex = "^(" # Opening part of expression
+		for i in range(len(keywords)):
+
+			if i == len(keywords) - 1: # The "or" regex character (i.e "|") should not follow the last keyword in the regex string.
+				keywordRegex = keywordRegex + keywords[i] # Append keyword to regex string.
+			else:
+				keywordRegex = keywordRegex + keywords[i] + "|"
+
+		keywordRegex = keywordRegex + ")" # Append closing part of expression
+
+		# Maps a type of token to a regular expression that recognizes text of that token type.
+		# For purposes of readability, a version of the regex string that does not include escape backslashes ('\') is commented next to the string.
+		#
+		# Note that the ordering of each rule within the dictionary is important, as for a lot of token types there is an overlap between 2 types(e.g all keywords are identifiers, and a function is an identifier followed by a delimiter)
 		self.rules = {
 
-	            TokenType.WHITESPACE: '^\s',
+	            "whitespace": r'^\s',
 
-	            TokenType.COMMENT: "^(#|//).+",
+	            "comment": commentRegex,
 
-	            TokenType.DELIM: r"^[\(\)\[\]\{\}@,:`;.]", # W/O escape backslashes: ^[()[]{}@,:`;.]
+	            "delimiter": r"^[\(\)\[\]\{\}@,:`;.]", # W/O escape backslashes: ^[()[]{}@,:`;.]
 
-	            TokenType.DOUBLE_CHAR_OPERATOR: r"^((==)|(!=)|(\<=)|(\>=)|(<>)|(\<\<)|(\>\>)|(//)|(\*\*)|(\+=)|(\-=)|(\*=)|(%=)|(/=)|(\|=)|(^=))",  # W/O escape backslashes: ^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(**)|(+=)|(-=)|(*=)|(%=)|(/=)|(|=)|(^=))
-	            TokenType.OPERATOR: r"^[\+\-\*/%\|^&~<>!=\?]", # W/O escape backslashes: ^[+-*/%|^&~<>!=?]
+	            "dbl_char_operator": r"^((==)|(!=)|(\<=)|(\>=)|(<>)|(\<\<)|(\>\>)|(//)|(\*\*)|(\+=)|(\-=)|(\*=)|(%=)|(/=)|(\|=)|(^=))",  # W/O escape backslashes: ^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(**)|(+=)|(-=)|(*=)|(%=)|(/=)|(|=)|(^=))
+	            "operator": r"^[\+\-\*/%\|^&~<>!=\?]", # W/O escape backslashes: ^[+-*/%|^&~<>!=?]
 
-	            TokenType.IDENTIFIER: "^[_A-Za-z][-Za-z0-9]*", 
+	            "keyword": keywordRegex,
+	            "function": r"^[_A-Za-z][_A-Za-z0-9]*(?=\()", # W/O escape backslashes: ^[_A-Za-z][_A-Za-z0-9]*(?=(
+	            "identifier": "^[_A-Za-z][_A-Za-z0-9]*", 
 
-	            TokenType.STRING: r"^(\"[^\"\n]*\")", # W/O escape backslashes: ^("[^"\n]*")
-	            TokenType.NUMBER: "^\d+",
+	            "dbl_quote_string": r"^(\"[^\"\n]*\")", # W/O escape backslashes: ^("[^"\n]*")
+				"single_quote_string": r"^('[^'\n]*')", 
+
+	            "number": r"^\d+",
 	            
-	            TokenType.UNKNOWN: "^.",
+	            "unknown": "^.",
 	    	}
 
 
@@ -111,7 +127,7 @@ class Highlighter():
 					matchLength = match.span()[1] - match.span()[0]
 
 					fmt = QTextCharFormat()
-					color = self.colorScheme[str(tokenType)]
+					color = self.colorScheme[tokenType]
 					fmt.setForeground(QColor(color))
 
 					cursor.setPosition(charsBeforeLine + i, QTextCursor.MoveMode.MoveAnchor) # Navigate cursor to match.

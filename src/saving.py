@@ -26,10 +26,3 @@ def saveAs(text):
 		file.write(text)
 
 	file.close()
-
-
-	
-	
-	
-	
-

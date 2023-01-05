@@ -8,6 +8,11 @@ Represents the popup containing the find & replace functionality
 
 CONSTRUCTOR PARAMETERS:
     editor - The QPlainTextEdit representing the code editor textbox.
+
+ATTRIBUTES:
+    editor - The QPlainTextEdit representing the code editor textbox.
+    document - The QTextDocument open in the editor.
+    instances - Array of QTextCursors, storing the cursors that select individual occurences of found text.
 """
 class FindReplacePopup(QDialog):
 

@@ -16,11 +16,17 @@ Represents the code editor textbox.
 
 CONSTRUCTOR PARAMETERS:
     fileText - The text of the file to open.
+    language - The string for the name of the programming language the user is editing.
+
+ATTRIBUTES:
+    language - The string for the name of the programming language the user is editing.
+    lineNumberArea - The LineNumberArea representing the line number space on the left margin of the editor textbox.
+    settings - Dictionary containing the settings loaded from BEditSettings.json.
 """
 class Editor(QPlainTextEdit):
 
 
-    def __init__(self, fileText):
+    def __init__(self, fileText, language):
 
         super().__init__()
 
@@ -35,6 +41,8 @@ class Editor(QPlainTextEdit):
         document.setDocumentLayout(plainTextLayout)
         self.setDocument(document)
 
+        self.language = language
+
         self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
 
         self.lineNumberArea = LineNumberArea(self)
@@ -47,8 +55,15 @@ class Editor(QPlainTextEdit):
         with open(sFilePath, 'r+') as file:
             self.settings = json.load(file)
 
-        self.highlighter = Highlighter(self)
-        self.highlighter.highlightAll()
+        # Only highlight syntax for supported languages and if appropriate setting is enabled.
+        if self.language == "unknown" or not self.settings["syntaxHighlight"]:
+            self.highlightingEnabled = False
+        else:
+            self.highlightingEnabled = True
+
+        if self.highlightingEnabled:
+            self.highlighter = Highlighter(self)
+            self.highlighter.highlightAll()
 
 
     """
@@ -104,7 +119,7 @@ class Editor(QPlainTextEdit):
                 self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
         # Syntax highlighting
-        if self.settings["syntaxHighlight"]:
+        if self.highlightingEnabled:
             self.highlighter.highlightLine()
 
 
