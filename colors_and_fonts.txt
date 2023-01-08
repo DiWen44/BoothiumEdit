@@ -1,12 +1,12 @@
 This is a list of hexadecimal values of all colors used in the program, and where they occur:
 
-#3d506e - Grey-blue color used in the menubar.
-#171c2b - Shade of blue used in the background of the editor.
-#142033 - Shade of blue used in line number section background
-#666666 - Medium-grey used for the line numbers
+#1e1e1e - Dark gray used in the menubar.
+#22283a - Shade of blue used in the background of the editor.
+#191e2b - Dark blue used in line number section background
+#666666 - Medium-gray used for the line numbers
 #0E0E10 - Black shade used for popup backgrounds.
 #151821 - Blueish-black used in buttons on the find & settings popups.
-#40d4db - Light blue used in find function's highlighting.
+#535e7c - Light blueish-gray used in find function's highlighting.
 
 
 This is a list of all fonts used in the program, and where they occur:

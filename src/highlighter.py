@@ -52,7 +52,7 @@ class Highlighter():
 			else:
 				keywordRegex = keywordRegex + keywords[i] + "|"
 
-		keywordRegex = keywordRegex + ")" # Append closing part of expression
+		keywordRegex = keywordRegex + ")(?=\s)" # Append closing part of expression
 
 		# Maps a type of token to a regular expression that recognizes text of that token type.
 		# For purposes of readability, a version of the regex string that does not include escape backslashes ('\') is commented next to the string.

@@ -144,7 +144,7 @@ class FindReplacePopup(QDialog):
         else:
 
             highlightFmt = QTextCharFormat() 
-            highlightFmt.setBackground(QColor("#40d4db"))
+            highlightFmt.setBackground(QColor("#535e7c"))
 
             for instanceCursor in self.instances:
                 instanceCursor.setCharFormat(highlightFmt) # Apply highlighting
@@ -158,11 +158,15 @@ class FindReplacePopup(QDialog):
     def __unhighlight(self):
 
         defaultFmt = QTextCharFormat() 
-        defaultFmt.setBackground(QColor("#171c2b")) # Background will be reset to the background color of the editor 
+        defaultFmt.setBackground(QColor("#22283a")) # Background will be reset to the background color of the editor 
         cursor = QTextCursor(self.document)
 
         cursor.setPosition(len(self.document.toPlainText()), QTextCursor.MoveMode.KeepAnchor) # Select entire document
         cursor.setCharFormat(defaultFmt)
+
+        # By setting the text to the format with the default background the syntax highlighting is also removed. This restores the syntax highlighting
+        if self.editor.highlighter != None:
+            self.editor.highlighter.highlightAll()
 
 
     """

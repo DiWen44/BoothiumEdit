@@ -12,7 +12,9 @@ BoothiumEdit is a small, minimalistic GUI text editor writting in Python, using 
 First, download the code from this repository.
 
 To open the editor, type the following into the shell:
-`python [PATH OF BOOTHIUMEDIT FOLDER]/main.py [PATH OF FILE TO OPEN]`
+`python [PATH OF BOOTHIUMEDIT FOLDER]/src/main.py [PATH OF FILE TO OPEN]`
+
+Note that the path of the file to open must be the absolute path, rather than the relative path.
 
 ### Keyboard Shortcuts
 

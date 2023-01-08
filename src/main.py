@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
 
         menuBar = self.menuBar()
         menuBar.setStyleSheet("""color: white; 
-                                background-color: #3d506e;
+                                background-color: #1e1e1e;
                                 font: Garet;
                                 font-size: 13pt;
                                 """)

@@ -65,7 +65,7 @@ class LineNumberArea(QWidget):
 
         # Paint widget background
         painter = QPainter(self)
-        painter.fillRect(event.rect(), QColor("#142033"))
+        painter.fillRect(event.rect(), QColor("#191e2b"))
 
         line = self.editor.firstVisibleBlock()
         lineNo = line.blockNumber()

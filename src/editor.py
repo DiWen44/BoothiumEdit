@@ -22,6 +22,7 @@ ATTRIBUTES:
     language - The string for the name of the programming language the user is editing.
     lineNumberArea - The LineNumberArea representing the line number space on the left margin of the editor textbox.
     settings - Dictionary containing the settings loaded from BEditSettings.json.
+    highlighter - The Highlighter object representing the editor's syntax highlighter. (If syntax highlighting is not to be applied to the file, then this attribute will equal None).
 """
 class Editor(QPlainTextEdit):
 
@@ -31,7 +32,7 @@ class Editor(QPlainTextEdit):
         super().__init__()
 
         self.setStyleSheet("""color: white; 
-                                background-color: #171c2b; 
+                                background-color: #22283a; 
                                 border-style: none; 
                                 font-family: Consolas, Menlo, monospace; 
                                 font-size: 13pt;""")
@@ -57,13 +58,13 @@ class Editor(QPlainTextEdit):
 
         # Only highlight syntax for supported languages and if appropriate setting is enabled.
         if self.language == "unknown" or not self.settings["syntaxHighlight"]:
-            self.highlightingEnabled = False
-        else:
-            self.highlightingEnabled = True
+            self.highlighter = None
 
-        if self.highlightingEnabled:
+        else:
             self.highlighter = Highlighter(self)
             self.highlighter.highlightAll()
+
+
 
 
     """
@@ -119,7 +120,7 @@ class Editor(QPlainTextEdit):
                 self.moveCursor(QTextCursor.MoveOperation.PreviousCharacter)
 
         # Syntax highlighting
-        if self.highlightingEnabled:
+        if self.highlighter != None:
             self.highlighter.highlightLine()
 
 
