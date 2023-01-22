@@ -22,6 +22,7 @@
 			"whitespace": "#ffffff",
 			"identifier": "#ffffff",
 			"function": "#5693a6", 
+			"preprocessor_directive": "#4d68b3",
 			"unknown": "#ffffff"
 		},
 

@@ -33,11 +33,11 @@ class Highlighter():
 			self.colorScheme = highlightingSettings["colorScheme"]
 
 			for i in highlightingSettings["languages"]:
-				if i["name"] == editor.language:
+				if i["name"] == self.editor.language:
 					keywords = i["keywords"]
 
 		# Accounts for comments in python being denoted by '#' rather than '//'.
-		if editor.language == "python":
+		if self.editor.language == "python":
 			commentRegex = "^(#.*)"
 		else:
 			commentRegex = "^(//.*)"
@@ -54,10 +54,12 @@ class Highlighter():
 
 		keywordRegex = keywordRegex + ")(?=\s)" # Append closing part of expression
 
+
 		# Maps a type of token to a regular expression that recognizes text of that token type.
 		# For purposes of readability, a version of the regex string that does not include escape backslashes ('\') is commented next to the string.
 		#
-		# Note that the ordering of each rule within the dictionary is important, as for a lot of token types there is an overlap between 2 types(e.g all keywords are identifiers, and a function is an identifier followed by a delimiter)
+		# Note that the ordering of each rule within the dictionary is important, as for a lot of token types there is an overlap between 2 types(e.g all keywords are identifiers, and a function is an identifier followed by a delimiter).
+		# As the dictionary is iterated over rom start to finish when looking for matches, it is important for more particular token types (e.g function, keyword) to precede more general ones (e.g identifier) that might also capture the tokens that are of the more specific types. 
 		self.rules = {
 
 	            "whitespace": r'^\s',
@@ -78,8 +80,14 @@ class Highlighter():
 
 	            "number": r"^\d+",
 	            
-	            "unknown": "^.",
 	    	}
+
+	    # Add C/C++ preprocessor directives
+		if self.editor.language == "c" or self.editor.language == "c++":
+			self.rules["preprocessor_directive"] = r"^#(include|define|undef|if|ifdef|ifndef|error)(?=\s)" 
+
+		# Finally, add unknown character regex at end of dictionary (Must be added at the end, as the regex string for it captures all characters).
+		self.rules["unknown"] = "^."
 
 
 	"""
