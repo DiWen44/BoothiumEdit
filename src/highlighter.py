@@ -25,16 +25,81 @@ class Highlighter():
 
 		self.editor = editor
 
+		# Maps a supported language to an array of it's reserved keywords.
+		languagesKeywords = {
+
+			"python": ["False", "await",	"else", "import", "pass",
+							"None", "break", "except", "in", "raise",
+							"True", "class", "finally", "is", "return",
+							"and", "continue", "for", "lambda",
+							"as", "def", "from", "nonlocal", "try",
+							"assert", "del", "global", "not", "while",
+							"async", "elif", "if"	, "or", "with",
+							"yield"],
+
+			"c": ["auto", "break", "case", "char",
+							"const", "continue", "default",	"do",
+							"double", "else", "enum", "extern",
+							"float", "for",	"goto",	"if",
+							"int", "long", "register",	"return",
+							"short", "signed",	"sizeof", "static",
+							"struct", "switch",	"typedef", "union",
+							"unsigned", "void", "volatile", "while"],
+
+			"c++": ["asm", "double", "new", "switch",
+							"auto", "else", "operator", "template",
+							"break", "enum", "private", "this",
+							"case", "extern", "protected", "throw",
+							"catch", "float", "public", "try",
+							"char", "for", "register", "typedef",
+							"class", "friend", "return", "union",
+							"const", "goto", "short", "unsigned",
+							"continue", "if", "signed", "virtual",
+							"default", "inline", "sizeof", "void",
+							"delete", "int", "static", "volatile ",
+							"do", "long", "struct", "while"],
+
+			"javascript": ["abstract", "arguments", "await", "boolean",
+							"break", "byte", "case", "catch",
+							"char", "class", "const", "continue",
+							"debugger", "default", "delete", "do",
+							"double", "else", "enum", "eval",
+							"export", "extends", "false", "final",
+							"finally", "float", "for", "function",
+							"goto", "if", "implements", "import",
+							"in", "instanceof", "int", "interface",
+							"let", "long", "native", "new",
+							"null", "package", "private", "protected",
+							"public", "return", "short", "static",
+							"super", "switch", "synchronized",
+							"throw", "throws", "transient", "true",
+							"try", "typeof", "var", "void",
+							"volatile", "while", "with", "yield"],
+
+			"java": ["abstract", "continue", "for", "new", "switch",
+							"assert", "default", "goto", "package", "synchronized",
+							"boolean", "do", "if", "private",
+							"break", "double", "implements", "protected", "throw",
+							"byte", "else", "import", "public",	"throws",
+							"case", "enum", "instanceof", "return",	"transient",
+							"catch", "extends", "int", "short",	"try",
+							"char", "final", "interface", "static",	"void",
+							"class", "finally", "long",	"strictfp",	"volatile",
+							"const", "float", "native", "super", "while"],
+
+			"go": ["const", "chan", "break", 
+							"defer", "var", "interface", 
+							"case", "go", "func", "map", 
+							"continue", "type", "struct", "default", 
+							"import", "else", "package", 
+							"fallthrough", "for", "goto", "if", 
+							"range", "return", "select", "switch"]
+		}
+				
 		# Loading color scheme & language keywords from settings file.
 		sFilePath = os.path.join(sys.path[0], "BEditSettings.json")
 		with open(sFilePath, 'r+') as file:
-
-			highlightingSettings = json.load(file)["syntaxHighlighting"]
-			self.colorScheme = highlightingSettings["colorScheme"]
-
-			for i in highlightingSettings["languages"]:
-				if i["name"] == self.editor.language:
-					keywords = i["keywords"]
+			self.colorScheme = json.load(file)["colorScheme"]
 
 		# Accounts for comments in python being denoted by '#' rather than '//'.
 		if self.editor.language == "python":
@@ -45,6 +110,7 @@ class Highlighter():
 	    # Generate regular expression for keywords.
 	    # The resulting regex should look something like this: "^(KEYWORD|KEYWORD|KEYWORD|KEYWORD)$", where "KEYWORD" is replaced with an actual keyword.
 		keywordRegex = "^(" # Opening part of expression
+		keywords = languagesKeywords[self.editor.language]
 		for i in range(len(keywords)):
 
 			if i == len(keywords) - 1: # The "or" regex character (i.e "|") should not follow the last keyword in the regex string.

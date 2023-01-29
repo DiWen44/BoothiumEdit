@@ -57,14 +57,12 @@ class Editor(QPlainTextEdit):
             self.settings = json.load(file)
 
         # Only highlight syntax for supported languages and if appropriate setting is enabled.
-        if self.language == "unknown" or not self.settings["syntaxHighlight"]:
+        if self.language == "unknown" or not self.settings["syntaxHighlighting"]:
             self.highlighter = None
 
         else:
             self.highlighter = Highlighter(self)
             self.highlighter.highlightAll()
-
-
 
 
     """

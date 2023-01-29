@@ -43,7 +43,7 @@ class SettingsPopup(QDialog):
         AutoIndent = Setting("Auto Indent", "autoIndent", self.settings["autoIndent"])
         layout.addLayout(AutoIndent)
 
-        syntaxHighlight = Setting("Syntax Highlighting", "syntaxHighlight", self.settings["syntaxHighlight"])
+        syntaxHighlight = Setting("Syntax Highlighting", "syntaxHighlighting", self.settings["syntaxHighlighting"])
         layout.addLayout(syntaxHighlight)
 
         self.setLayout(layout)
