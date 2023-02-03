@@ -5,21 +5,5 @@
 
 	"autoIndent": true, 
 
-	"syntaxHighlighting": true,
-
-	"colorScheme": {
-			"comment": "#a69a5a",
-			"number": "#e69c3c",
-			"dbl_quote_string": "#609e7b",
-			"single_quote_string": "#609e7b",
-			"keyword": "#8751a6",
-			"operator": "#a34040",
-			"dbl_char_operator": "#a34040", 
-			"delimiter": "#ffffff",
-			"whitespace": "#ffffff",
-			"identifier": "#ffffff",
-			"function": "#5693a6", 
-			"preprocessor_directive": "#4d68b3",
-			"unknown": "#ffffff"
-	}
+	"syntaxHighlighting": true
 }

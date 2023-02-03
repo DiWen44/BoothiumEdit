@@ -66,6 +66,9 @@ class MainWindow(QMainWindow):
         elif self.filePath[-5:] == ".java":
             language = "java"
 
+        elif self.filePath[-5:] == ".html":
+            language = "html"
+
         else:
             language = "unknown"
              
@@ -135,7 +138,6 @@ class MainWindow(QMainWindow):
 
             msgBox.exec()
 
-    
 
 window = MainWindow()
 window.show()
