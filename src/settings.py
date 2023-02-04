@@ -73,7 +73,6 @@ class SettingsPopup(QDialog):
         os.system(f"python {mainPath} {self.jsonPath}") # Run shell command that opens editor, specifying BEditSettings.json as the file to open.
 
 
-
 """
 Represents 1 individual on/off setting, and is comprised of that setting's name and the dropdown menu for it. 
 In the form of a QHBoxLayout that is to be added to the SettingsPopup's layout, thus becoming a child of that layout.

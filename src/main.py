@@ -13,7 +13,6 @@ import settings
 app = QApplication([])
 
 
-
 class MainWindow(QMainWindow):
 	
     
@@ -50,25 +49,16 @@ class MainWindow(QMainWindow):
         # Get programming language from filename
         if self.filePath[-3:] == ".py":
             language = "python"
-
         elif self.filePath[-3:] == ".js":
             language = "javascript"
-
         elif self.filePath[-3:] == ".go":
-            language = "go" 
-                   
+            language = "go"         
         elif self.filePath[-2:] == ".c" or self.filePath[-2:] == ".h":
             language = "c"
-
         elif self.filePath[-4:] == ".cpp" or self.filePath[-2:] == ".hpp":
             language = "c++"
-
         elif self.filePath[-5:] == ".java":
             language = "java"
-
-        elif self.filePath[-5:] == ".html":
-            language = "html"
-
         else:
             language = "unknown"
              
