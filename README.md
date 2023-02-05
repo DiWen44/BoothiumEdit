@@ -43,4 +43,4 @@ BoothiumEdit has syntax highlighting support for the the following languages:
 - Java
 - Go
 
-Language support can be added manually by editing the "BEditSettings.json" file.
+You can open any text file in the editor, but syntax highlighting will only be applied to the above 6.
