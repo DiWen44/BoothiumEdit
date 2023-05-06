@@ -144,12 +144,13 @@ class Editor(QPlainTextEdit):
         prevLine = "" 
         char = editorTxt[cursorBeforeReturn.position() - 1] # The character occuring immediately before the cursor in the document
         
-        charCount = 2 # charCount begins as 2, because char is initially the character 1 position before the cursor's position
-        while char != "\n": # Get all characters on the line by iterating backwards from cursor until a newline character is reached
+        charCount = 1 # charCount begins as 1, because char is initially the character 1 position before the cursor's position
+        while char != "\n": # Get all characters on the line by iterating backwards from cursor until a newline character is reached i.e When the end of the line before is reached
  
             prevLine = prevLine + char # Appends character to line
-            char = editorTxt[cursorBeforeReturn.position() - charCount]
             charCount += 1
+            char = editorTxt[cursorBeforeReturn.position() - charCount]
+
 
         prevLine = prevLine[::-1] # Since iteration started at the end of the line, the line string is backwards. This inverts it so the characters are in the correct order.
 
@@ -163,14 +164,15 @@ class Editor(QPlainTextEdit):
         # If so, it's still necessary to indent, so here we traverse any whitespace before the cursor, and determine if it's necessary to indent based on the character at the other end of the whitespace.
         # This will still work as intended if there is no whitespace before the cursor, as the loop just won't be executed.
         char = editorTxt[cursorBeforeReturn.position() - 1]
-        charCount = 2  
+        charCount = 1  
         while char.isspace(): # Iterate backwards through any whitespace until a non-whitespace character is encountered           
 
-            if char == "\n": # Exit loop if newline character is encountered before any non-whitespace characters. We don't need to add an indent in this siuation
+            if char == "\n": # Exit loop if newline character is encountered before any non-whitespace characters i.e When the end of the line before is reached.
                 break
-
-            char = editorTxt[cursorBeforeReturn.position() - charCount]
+            
             charCount += 1
+            char = editorTxt[cursorBeforeReturn.position() - charCount]
+            
             
         if (char in brackets) or (char == ":"): # Indent if character is colon or a bracket
             indentsNeeded += 1
