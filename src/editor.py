@@ -140,7 +140,7 @@ class Editor(QPlainTextEdit):
 
         # There may be previous indents at the beginning of the line the cursor was on before "return" was pressed. 
         # The new line must be indented to the same level as the previous (and one more if the previous line ended with a colon or bracket),
-        # so here we get the number of indents of the previous line.
+        # so here we obtain the previous line's text and deduce it's number of indents.
         prevLine = "" 
         char = editorTxt[cursorBeforeReturn.position() - 1] # The character occuring immediately before the cursor in the document
         
@@ -149,7 +149,7 @@ class Editor(QPlainTextEdit):
  
             prevLine = prevLine + char # Appends character to line
             charCount += 1
-            char = editorTxt[cursorBeforeReturn.position() - charCount]
+            char = editorTxt[cursorBeforeReturn.position() - charCount] # Move char to next character back 
 
 
         prevLine = prevLine[::-1] # Since iteration started at the end of the line, the line string is backwards. This inverts it so the characters are in the correct order.
