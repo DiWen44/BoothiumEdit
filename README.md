@@ -14,7 +14,7 @@ First, download the code from this repository.
 To open the editor, type the following into the shell:
 `python [PATH OF BOOTHIUMEDIT FOLDER]/src/main.py [PATH OF FILE TO OPEN]`
 
-Note that the path of the file to open must be the absolute path, rather than the relative path.
+Note that the path of the file to open must be the absolute path (i.e path relative to the root directory), rather than a relative path.
 
 ### Keyboard Shortcuts
 
@@ -32,6 +32,8 @@ BoothiumEdit allows you to edit settings both through a GUI popup, and by direct
 
 To access the settings popup, go to the menu bar and select File > Settings. If you want to open "BEditSettings.json", the popup has a button at the bottom that opens the file in a new editor window.
 
+Note that when the settings are changed, the changes will not take effect until the file is closed and reopened or a new file is opened.
+
 ## Language Support
 
 BoothiumEdit has syntax highlighting support for the the following languages:
@@ -43,4 +45,4 @@ BoothiumEdit has syntax highlighting support for the the following languages:
 - Java
 - Go
 
-You can open any text file in the editor, but syntax highlighting will only be applied to the above 6.
+You can open any text-based file in the editor, but syntax highlighting will only be applied to the above 6.
